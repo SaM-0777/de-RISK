@@ -1,0 +1,187 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.24;
+
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721Burnable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IOracleConsumer {
+    function isClaimable(
+        uint256 policyId,
+        uint256 tokenId // users policy nft token id
+    ) external view returns (bool);
+}
+
+contract PolicyContract is ERC721, ERC721Burnable, AccessControl {
+    bytes32 public constant ORACLE_ROLE = keccak256("ORACLE_ROLE");
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
+    struct Policy {
+        address owner; // owner of the premium
+        uint256 expiry; // if 0 then no expiry
+        bool premiumPaid; // to track if user is paying premium
+        bool claimed;
+    }
+
+    uint256 public policyId;
+    address public oracle;
+    address public treasury;
+    address public mUSDC;
+    uint256 public premiumAmount;
+    uint256 public payoutAmount;
+    uint256 public tokenIdCounter;
+
+    mapping(uint256 => Policy) public policies;
+    mapping(uint256 => uint256) public lastPremiumPaid; // Uinx timestamp of when last premium is paid by the owner
+
+    event PolicyPurchased(uint256 tokenId, address owner, uint256 expiry);
+    event PremiumPaid(uint256 tokenId, uint256 amount);
+    event ClaimProcessed(
+        uint256 tokenId,
+        address owner,
+        uint256 amount,
+        bool success
+    );
+    event ParamsUpdated(uint256 premiumAmount, uint256 payoutAmount);
+
+    constructor(
+        string memory name,
+        uint256 _policyId,
+        address _oracle,
+        address _treasury,
+        address _mUSDC,
+        uint256 _premiumAmount,
+        uint256 _payoutAmount
+    ) ERC721(name, "DERISK") {
+        policyId = _policyId;
+        oracle = _oracle;
+        treasury = _treasury;
+        mUSDC = _mUSDC;
+        premiumAmount = _premiumAmount;
+        payoutAmount = _payoutAmount;
+
+        // assign roles
+        _grantRole(ORACLE_ROLE, _oracle);
+        _grantRole(ADMIN_ROLE, msg.sender);
+    }
+
+    function buyPolicy(
+        address owner,
+        uint256 expiryDuration // timestamp
+    ) external {
+        require(
+            IERC20(mUSDC).transferFrom(msg.sender, treasury, premiumAmount),
+            "Initial premium failed"
+        );
+
+        uint256 tokenId = tokenIdCounter++;
+        uint256 expiry = expiryDuration == 0
+            ? 0
+            : block.timestamp + expiryDuration;
+
+        policies[tokenId] = Policy({
+            owner: owner,
+            expiry: expiry,
+            premiumPaid: true,
+            claimed: false
+        });
+
+        lastPremiumPaid[tokenId] = block.timestamp;
+        _safeMint(owner, tokenId);
+
+        emit PolicyPurchased(tokenId, owner, expiry);
+    }
+
+    function payPremium(uint256 tokenId) external {
+        require(_ownerOf(tokenId) != address(0), "Policy does not exists");
+        require(policies[tokenId].premiumPaid, "Policy inactive");
+        require(
+            block.timestamp <= policies[tokenId].expiry ||
+                policies[tokenId].expiry == 0,
+            "Policy expired"
+        );
+
+        require(
+            IERC20(mUSDC).transferFrom(msg.sender, treasury, premiumAmount),
+            "Premium payment failed"
+        );
+
+        lastPremiumPaid[tokenId] = block.timestamp;
+        policies[tokenId].premiumPaid = true;
+
+        emit PremiumPaid(tokenId, premiumAmount);
+    }
+
+    function claim(uint256 tokenId) external {
+        require(_ownerOf(tokenId) == msg.sender, "Not policy owner");
+        require(policies[tokenId].premiumPaid, "Premiums not paid");
+        require(
+            block.timestamp <= policies[tokenId].expiry ||
+                policies[tokenId].expiry == 0,
+            "Policy expired"
+        );
+        require(!policies[tokenId].claimed, "Already claimed");
+        require(
+            IOracleConsumer(oracle).isClaimable(policyId, tokenId),
+            "Claim conditions not met"
+        );
+
+        policies[tokenId].claimed = true;
+        require(
+            IERC20(mUSDC).transferFrom(treasury, msg.sender, payoutAmount),
+            "Payout failed"
+        );
+        _burn(tokenId); // Single-claim policy
+        emit ClaimProcessed(tokenId, msg.sender, payoutAmount, true);
+    }
+
+    function updateClaimStatus(
+        uint256 tokenId,
+        bool claimable
+    ) external onlyRole(ORACLE_ROLE) {
+        require(_ownerOf(tokenId) != address(0), "Policy does not exist");
+        policies[tokenId].claimed = !claimable; // If claimable, mark as not claimed to allow payout
+        if (
+            claimable &&
+            policies[tokenId].premiumPaid &&
+            (block.timestamp <= policies[tokenId].expiry ||
+                policies[tokenId].expiry == 0)
+        ) {
+            // To auto-trigger payout
+            require(
+                IERC20(mUSDC).transferFrom(
+                    treasury,
+                    policies[tokenId].owner,
+                    payoutAmount
+                ),
+                "Auto-payout failed"
+            );
+            policies[tokenId].claimed = true;
+            _burn(tokenId);
+            emit ClaimProcessed(
+                tokenId,
+                policies[tokenId].owner,
+                payoutAmount,
+                true
+            );
+        }
+    }
+
+    function updateParams(
+        // to update the premium and payout amounts of policy that already exists
+        uint256 _premiumAmount,
+        uint256 _payoutAmount
+    ) external onlyRole(ADMIN_ROLE) {
+        require(_premiumAmount > 0 && _payoutAmount > 0, "Invalid amounts");
+        premiumAmount = _premiumAmount;
+        payoutAmount = _payoutAmount;
+        emit ParamsUpdated(_premiumAmount, _payoutAmount);
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, AccessControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+}
