@@ -7,3 +7,20 @@ type Policy = {
   premiumAmount: string;
   payoutAmount: string;
 };
+
+type PolicyTemplate = {
+  id: string;
+  slug: string;
+  name: string;
+  txHash: string;
+  description: string;
+  contractAddress: string;
+  policyId: string;
+  premiumAmount: string;
+  payoutAmount: string;
+  oracleAddress: string;
+  coverageTerms: string[];
+  formSchema: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+};

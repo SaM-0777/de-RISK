@@ -1,10 +1,18 @@
 "use server";
 import contracts from "@/contracts";
-import { getContract, decodeEventLog, parseUnits } from "viem";
+import {
+  getContract,
+  decodeEventLog,
+  parseUnits,
+  createPublicClient,
+  http,
+  Hex,
+} from "viem";
 import { baseSepolia } from "viem/chains";
 import { publicViemClient, walletViemClient } from "../viem";
 import { db } from "@/db";
-import { policyTemplate } from "@/db/schema/policy";
+import { policyTemplate, userPolicy } from "@/db/schema/policy";
+import { eq } from "drizzle-orm";
 
 export async function createPolicy({
   name,
@@ -65,9 +73,11 @@ export async function createPolicy({
       decodedEvents.push(decodedEvent);
     }
 
-    const PolicyCreatedEvent = decodedEvents.find(e => e.eventName === "PolicyCreated");
+    const PolicyCreatedEvent = decodedEvents.find(
+      (e) => e.eventName === "PolicyCreated"
+    );
     if (!PolicyCreatedEvent) {
-      throw new Error(`Policy creation is pending`)
+      throw new Error(`Policy creation is pending`);
     }
 
     // store it in db
@@ -96,6 +106,89 @@ export async function createPolicy({
     };
   } catch (error) {
     console.error(`src.app.actions.policy.createPolicy.error ${error}`);
+    return {
+      error: "Internal server error",
+    };
+  }
+}
+
+export async function getPolicies() {
+  try {
+    const policies = await db.select().from(policyTemplate);
+
+    return {
+      data: policies,
+    };
+  } catch (error) {
+    console.error(`web.src.app.actions.policy.getPolicies.error ${error}`);
+    return {
+      error: "Internal server error",
+    };
+  }
+}
+
+export async function getPolicyBySlug(slug: string) {
+  try {
+    const [policy] = await db
+      .select()
+      .from(policyTemplate)
+      .where(eq(policyTemplate.slug, slug))
+      .limit(1);
+
+    return {
+      data: policy ?? null,
+    };
+  } catch (error) {
+    console.error(`web.src.app.actions.policy.getPolicyBySlug.error ${error}`);
+    return {
+      error: "Internal server error",
+    };
+  }
+}
+
+export async function buyDepegPolicy({
+  owner,
+  hash,
+  policy,
+}: {
+  hash: string;
+  owner: string;
+  policy: {
+    policySlug: string;
+    network: string;
+    assetPairAddress: string;
+  };
+}) {
+  try {
+    const publicClient = createPublicClient({
+      chain: baseSepolia,
+      transport: http(process.env.BASE_SEPOLIA_RPC_URL!),
+    });
+
+    const receipt = await publicClient.getTransaction({ hash: hash as Hex });
+    const value = receipt.value.toString();
+
+    console.log({ value });
+
+    const [newUserPolicy] = await db
+      .insert(userPolicy)
+      .values({
+        policyTemplateSlug: policy.policySlug,
+        ownerAddress: owner,
+        premiumPaid: value,
+        txHash: hash,
+        inputs: {
+          network: policy.network,
+          assetPairAddress: policy.assetPairAddress,
+        },
+      })
+      .returning();
+
+    return {
+      data: newUserPolicy,
+    };
+  } catch (error) {
+    console.error(`web.src.app.actions.policy.buyDepegPolicy.error ${error}`);
     return {
       error: "Internal server error",
     };

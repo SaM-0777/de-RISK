@@ -1,0 +1,53 @@
+specVersion: 1.3.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PolicyContract
+    network: base-sepolia
+    source:
+      address: "0xd748a089Bf750E32863e6EB33e80D717E021A3B6"
+      abi: PolicyContract
+      startBlock: 32483548
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - ClaimProcessed
+        - ParamsUpdated
+        - PolicyPurchased
+        - PremiumPaid
+        - RoleAdminChanged
+        - RoleGranted
+        - RoleRevoked
+        - Transfer
+      abis:
+        - name: PolicyContract
+          file: ./abis/PolicyContract.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: ClaimProcessed(uint256,address,uint256,bool)
+          handler: handleClaimProcessed
+        - event: ParamsUpdated(uint256,uint256)
+          handler: handleParamsUpdated
+        - event: PolicyPurchased(uint256,address,uint256)
+          handler: handlePolicyPurchased
+        - event: PremiumPaid(uint256,uint256)
+          handler: handlePremiumPaid
+        - event: RoleAdminChanged(indexed bytes32,indexed bytes32,indexed bytes32)
+          handler: handleRoleAdminChanged
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleGranted
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handleRoleRevoked
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/policy-contract.ts

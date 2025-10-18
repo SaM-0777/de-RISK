@@ -15,6 +15,13 @@
       "when": 1760735194419,
       "tag": "0001_typical_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760811091027,
+      "tag": "0002_freezing_thor",
+      "breakpoints": true
     }
   ]
 }

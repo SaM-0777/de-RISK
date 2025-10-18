@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import { Card, CardFooter, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
 import { usePrivy, useWallets, useConnectWallet } from "@privy-io/react-auth";
 import {
   createWalletClient,
@@ -10,12 +9,14 @@ import {
   custom,
   http,
   parseUnits,
+  Hex,
 } from "viem";
 import { baseSepolia } from "viem/chains";
 import contracts from "@/contracts";
 import { toast } from "sonner";
+import Link from "next/link";
 
-export default function PolicyCard({ policy }: { policy: Policy }) {
+export default function PolicyCard({ policy }: { policy: PolicyTemplate }) {
   const { ready } = usePrivy();
   const { wallets } = useWallets();
   const { connectWallet } = useConnectWallet();
@@ -29,7 +30,9 @@ export default function PolicyCard({ policy }: { policy: Policy }) {
 
     if (!wallets || wallets.length === 0) {
       try {
-        connectWallet();
+        connectWallet({
+          walletList: ["detected_ethereum_wallets"]
+        });
       } catch (error) {
         console.error("connectWallet failed:", error);
         toast.error("Wallet connection cancelled or failed");
@@ -59,7 +62,10 @@ export default function PolicyCard({ policy }: { policy: Policy }) {
         address: contracts.MUSDC.address,
         abi: contracts.MUSDC.abi,
         functionName: "approve",
-        args: [policy.policyContract, parseUnits(policy.premiumAmount, 18)],
+        args: [
+          policy.contractAddress as Hex,
+          parseUnits(policy.premiumAmount, 18),
+        ],
       });
       await publicClient.waitForTransactionReceipt({ hash: approveHash });
 
@@ -69,7 +75,7 @@ export default function PolicyCard({ policy }: { policy: Policy }) {
       console.log("Next nonce:", nextNonce);
 
       const buyPremium = await walletClient.writeContract({
-        address: policy.policyContract,
+        address: policy.contractAddress as Hex,
         abi: contracts.PolicyContract.abi,
         functionName: "buyPolicy",
         args: [wallet.address as `0x${string}`, parseUnits("0", 18)],
@@ -96,16 +102,19 @@ export default function PolicyCard({ policy }: { policy: Policy }) {
         <p>{policy.description}</p>
       </CardHeader>
       <div>
-        <p>Policy Contract: {policy.policyContract}</p>
-        <p>Oracle: {policy.oracle}</p>
+        <p>Policy Contract: {policy.contractAddress}</p>
+        <p>Oracle: {policy.oracleAddress}</p>
         <p>Premium Amount: {policy.premiumAmount.toString()}</p>
         <p>Payout Amount: {policy.payoutAmount.toString()}</p>
       </div>
 
       <CardFooter>
-        <Button disabled={pending} onClick={buyPolicy}>
+        <Link href={`/policy/${policy.slug}`} className="" >
           Buy Policy
-        </Button>
+        </Link>
+        {/*<Button disabled={pending} onClick={buyPolicy}>
+          Buy Policy
+        </Button>*/}
       </CardFooter>
     </Card>
   );

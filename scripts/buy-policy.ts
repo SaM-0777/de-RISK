@@ -9,7 +9,7 @@ const USER = "0x8D012ECAdD409C0A6F6c9377256a189512f2aE40" as `0x${string}`;
 const mUSDCAddress =
   "0xe418d073ebd73447689c42c5600b9e654cb97e32" as `0x${string}`;
 const PolicyAddress =
-  "0xf69594f5d50b40d9f5f9468003897c0d84c1cbc4" as `0x${string}`;
+  "0xd748a089Bf750E32863e6EB33e80D717E021A3B6" as `0x${string}`;
 
 const { viem } = await network.connect();
 
@@ -19,7 +19,7 @@ const publicClient = await viem.getPublicClient();
 const walletClient = createWalletClient({
   account,
   chain: baseSepolia,
-  transport: http(),
+  transport: http(process.env.BASE_SEPOLIA_RPC_URL),
 });
 
 const PolicyContract = await viem.getContractAt(
@@ -45,9 +45,9 @@ console.log("Next nonce:", nextNonce);
 const approveTx = await walletClient.writeContract({
   address: PolicyAddress,
   abi: PolicyContract.abi,
-  functionName: "buyPolicy",
-  args: [USER, parseUnits("0", 18)],
-  nonce: nextNonce,
+  functionName: "payPremium",
+  args: [parseUnits("0", 18)],
+  //nonce: nextNonce,
 });
 
 const tx = await publicClient.waitForTransactionReceipt({ hash: approveTx });
