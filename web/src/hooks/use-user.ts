@@ -42,15 +42,6 @@ export function useBalance(
         args: [user.wallet.address as Hex],
       });
 
-      if (Number(balance) > 1) {
-        const nft = await publicViemClient.readContract({
-          abi: policyAbi,
-          address: policyAddress,
-          functionName: "policies",
-          args: []
-        })
-      }
-
       setBalance(Number(balance));
     } catch (error) {
       toast.error(`An error occured while fetching user balance`);
