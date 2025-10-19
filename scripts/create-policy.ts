@@ -8,9 +8,9 @@ if (!OWNER) {
 }
 
 const mUSDCAddress = "0xe418d073ebd73447689c42c5600b9e654cb97e32";
-const InsuranceFactoryAddress = "0x554b3390adc7c5b8ebe06e04cd16da40de3c2890";
-const PremiumTreasuryAddress = "0xFF401F2A0D238ab71f6EbbBE2E3bAF6728Dd313E";
-const OracleConsumerAddress = "0xc8F93E138cfa045eFd864eD9DC1623FB1DB79802";
+const InsuranceFactoryAddress = "0xd4110dd40fbe33f83a219756024a67b4b2b62d1d";
+const PremiumTreasuryAddress = "0xcb325d226b843dd3dae0c9065a0e7b102374803d";
+const OracleConsumerAddress = "0xef8b15bc6de1cb9c60fedadeafa2ea3bbfcce5fd";
 
 const { viem } = await network.connect();
 
@@ -22,12 +22,20 @@ const InsuranceFactoryContract = await viem.getContractAt(
   InsuranceFactoryAddress
 );
 
-const LPHackPremiumAmount = parseUnits("1", 18); // 1 mUSDC
-const LPHackPayoutAmount = parseUnits("2", 18); // 2 mUSDC
+const InsuranceFactoryAdminRole = InsuranceFactoryContract.read.ADMIN_ROLE;
+const InsuranceFactoryAdmin = await InsuranceFactoryAdminRole();
+console.log({ InsuranceFactoryAdmin });
+
+const LPHackPremiumAmount = parseUnits("10", 18); // 1 mUSDC
+const LPHackPayoutAmount = parseUnits("100", 18); // 2 mUSDC
 const FlightDelayPremiumAmount = parseUnits("10", 18); // 1 mUSDC
 const FlightDelayPayoutAmount = parseUnits("20", 18); // 2 mUSDC
 
-const LPHackPolicyArgs = [ // 0xf69594f5d50b40d9f5f9468003897c0d84c1cbc4
+const DepegPolicyNFT =
+  "https://drive.usercontent.google.com/download?id=1c-NfSZlwKIkvGQlnHAeZw8hsqEMCNqGz&export=view";
+
+const LPHackPolicyArgs = [
+  // 0xf69594f5d50b40d9f5f9468003897c0d84c1cbc4
   "LP Hack",
   "Insure against LP Manipulation",
   OracleConsumerAddress,
@@ -52,8 +60,9 @@ const approveTx = await walletClient.writeContract({
   abi: InsuranceFactoryContract.abi,
   functionName: "createPolicy",
   args: [
-    "LP Hack",
-    "Insure against LP Manipulation",
+    "DePeg Insurance",
+    "Insure against Depeg",
+    DepegPolicyNFT,
     OracleConsumerAddress,
     PremiumTreasuryAddress,
     mUSDCAddress,

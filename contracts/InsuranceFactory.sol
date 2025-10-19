@@ -46,6 +46,7 @@ contract InsuranceFactory is AccessControl {
     function createPolicy(
         string memory name,
         string memory description,
+        string memory imageUrl,
         address oracle,
         address treasury,
         address mUSDC,
@@ -56,6 +57,8 @@ contract InsuranceFactory is AccessControl {
 
         PolicyContract policyContract = new PolicyContract(
             name,
+            description,
+            imageUrl,
             policyId,
             oracle,
             treasury,
