@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Button } from "./ui/button";
-import contracts from "@/contracts";
+import contracts from "@/constants/contracts";
 import {
   createPublicClient,
   createWalletClient,

@@ -1,6 +1,8 @@
+import { Hex } from "viem";
+
 const contracts = {
   InsuranceFactory: {
-    address: "0x554b3390adc7c5b8ebe06e04cd16da40de3c2890" as `0x${string}`,
+    address: "0x2808ddf884998c667f9c2ca83e17270d52ba7ad6" as Hex,
     abi: [
       {
         inputs: [
@@ -53,6 +55,12 @@ const contracts = {
             indexed: false,
             internalType: "string",
             name: "name",
+            type: "string",
+          },
+          {
+            indexed: false,
+            internalType: "string",
+            name: "imageUrl",
             type: "string",
           },
         ],
@@ -195,6 +203,11 @@ const contracts = {
           {
             internalType: "string",
             name: "description",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "imageUrl",
             type: "string",
           },
           {
@@ -544,7 +557,7 @@ const contracts = {
     ] as const,
   },
   PremiumTreasury: {
-    address: "0xFF401F2A0D238ab71f6EbbBE2E3bAF6728Dd313E" as `0x${string}`,
+    address: "0x93f7ac5f7f1761bd9764418a46927625182e748e" as `0x${string}`,
     abi: [
       {
         inputs: [
@@ -985,13 +998,23 @@ const contracts = {
     ] as const,
   },
   PolicyContract: {
-    address: "0xf69594f5d50b40d9f5f9468003897c0d84c1cbc4" as `0x${string}`,
+    address: "" as `0x${string}`,
     abi: [
       {
         inputs: [
           {
             internalType: "string",
-            name: "name",
+            name: "_name",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "_description",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "_imageUrl",
             type: "string",
           },
           {
@@ -1047,6 +1070,11 @@ const contracts = {
           },
         ],
         name: "AccessControlUnauthorizedAccount",
+        type: "error",
+      },
+      {
+        inputs: [],
+        name: "ERC721EnumerableForbiddenBatchMint",
         type: "error",
       },
       {
@@ -1153,6 +1181,22 @@ const contracts = {
         type: "error",
       },
       {
+        inputs: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "index",
+            type: "uint256",
+          },
+        ],
+        name: "ERC721OutOfBoundsIndex",
+        type: "error",
+      },
+      {
         anonymous: false,
         inputs: [
           {
@@ -1208,6 +1252,25 @@ const contracts = {
           {
             indexed: false,
             internalType: "uint256",
+            name: "_fromTokenId",
+            type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "_toTokenId",
+            type: "uint256",
+          },
+        ],
+        name: "BatchMetadataUpdate",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: false,
+            internalType: "uint256",
             name: "tokenId",
             type: "uint256",
           },
@@ -1231,6 +1294,19 @@ const contracts = {
           },
         ],
         name: "ClaimProcessed",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "_tokenId",
+            type: "uint256",
+          },
+        ],
+        name: "MetadataUpdate",
         type: "event",
       },
       {
@@ -1272,6 +1348,12 @@ const contracts = {
             internalType: "uint256",
             name: "expiry",
             type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "string",
+            name: "tokenURI",
+            type: "string",
           },
         ],
         name: "PolicyPurchased",
@@ -1597,6 +1679,19 @@ const contracts = {
         type: "function",
       },
       {
+        inputs: [],
+        name: "imageUrl",
+        outputs: [
+          {
+            internalType: "string",
+            name: "",
+            type: "string",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
         inputs: [
           {
             internalType: "address",
@@ -1759,12 +1854,38 @@ const contracts = {
       },
       {
         inputs: [],
+        name: "policyDescription",
+        outputs: [
+          {
+            internalType: "string",
+            name: "",
+            type: "string",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
         name: "policyId",
         outputs: [
           {
             internalType: "uint256",
             name: "",
             type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "policyName",
+        outputs: [
+          {
+            internalType: "string",
+            name: "",
+            type: "string",
           },
         ],
         stateMutability: "view",
@@ -1921,8 +2042,51 @@ const contracts = {
         type: "function",
       },
       {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "index",
+            type: "uint256",
+          },
+        ],
+        name: "tokenByIndex",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
         inputs: [],
         name: "tokenIdCounter",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "index",
+            type: "uint256",
+          },
+        ],
+        name: "tokenOfOwnerByIndex",
         outputs: [
           {
             internalType: "uint256",
@@ -1947,6 +2111,19 @@ const contracts = {
             internalType: "string",
             name: "",
             type: "string",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "totalSupply",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
           },
         ],
         stateMutability: "view",
@@ -2430,6 +2607,544 @@ const contracts = {
           },
         ],
         name: "transferOwnership",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ] as const,
+  },
+  OracleConsumer: {
+    address: "0x25004adf7fff41c900558bf9133aca3aef2f759b" as Hex,
+    abi: [
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "_trustedSigner",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "admin",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "insuranceFactory",
+            type: "address",
+          },
+        ],
+        stateMutability: "nonpayable",
+        type: "constructor",
+      },
+      {
+        inputs: [],
+        name: "AccessControlBadConfirmation",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+          {
+            internalType: "bytes32",
+            name: "neededRole",
+            type: "bytes32",
+          },
+        ],
+        name: "AccessControlUnauthorizedAccount",
+        type: "error",
+      },
+      {
+        inputs: [],
+        name: "ECDSAInvalidSignature",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "length",
+            type: "uint256",
+          },
+        ],
+        name: "ECDSAInvalidSignatureLength",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "bytes32",
+            name: "s",
+            type: "bytes32",
+          },
+        ],
+        name: "ECDSAInvalidSignatureS",
+        type: "error",
+      },
+      {
+        inputs: [],
+        name: "InvalidShortString",
+        type: "error",
+      },
+      {
+        inputs: [
+          {
+            internalType: "string",
+            name: "str",
+            type: "string",
+          },
+        ],
+        name: "StringTooLong",
+        type: "error",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "policyId",
+            type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "uint256",
+            name: "tokenId",
+            type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "bool",
+            name: "claimable",
+            type: "bool",
+          },
+        ],
+        name: "ClaimStatusUpdated",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [],
+        name: "EIP712DomainChanged",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            indexed: true,
+            internalType: "bytes32",
+            name: "previousAdminRole",
+            type: "bytes32",
+          },
+          {
+            indexed: true,
+            internalType: "bytes32",
+            name: "newAdminRole",
+            type: "bytes32",
+          },
+        ],
+        name: "RoleAdminChanged",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+        ],
+        name: "RoleGranted",
+        type: "event",
+      },
+      {
+        anonymous: false,
+        inputs: [
+          {
+            indexed: true,
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+          {
+            indexed: true,
+            internalType: "address",
+            name: "sender",
+            type: "address",
+          },
+        ],
+        name: "RoleRevoked",
+        type: "event",
+      },
+      {
+        inputs: [],
+        name: "ADMIN_ROLE",
+        outputs: [
+          {
+            internalType: "bytes32",
+            name: "",
+            type: "bytes32",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "CLAIM_TYPEHASH",
+        outputs: [
+          {
+            internalType: "bytes32",
+            name: "",
+            type: "bytes32",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "DEFAULT_ADMIN_ROLE",
+        outputs: [
+          {
+            internalType: "bytes32",
+            name: "",
+            type: "bytes32",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        name: "claimable",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "eip712Domain",
+        outputs: [
+          {
+            internalType: "bytes1",
+            name: "fields",
+            type: "bytes1",
+          },
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "version",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "chainId",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "verifyingContract",
+            type: "address",
+          },
+          {
+            internalType: "bytes32",
+            name: "salt",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint256[]",
+            name: "extensions",
+            type: "uint256[]",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+        ],
+        name: "getRoleAdmin",
+        outputs: [
+          {
+            internalType: "bytes32",
+            name: "",
+            type: "bytes32",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+        ],
+        name: "grantRole",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+        ],
+        name: "hasRole",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "policyTypeId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "tokenId",
+            type: "uint256",
+          },
+        ],
+        name: "isClaimable",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        name: "policyContracts",
+        outputs: [
+          {
+            internalType: "address",
+            name: "",
+            type: "address",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "policyId",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "policyContract",
+            type: "address",
+          },
+        ],
+        name: "registerPolicyContract",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "callerConfirmation",
+            type: "address",
+          },
+        ],
+        name: "renounceRole",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+        ],
+        name: "revokeRole",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "address",
+            name: "newSigner",
+            type: "address",
+          },
+        ],
+        name: "setTrustedSigner",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "bytes4",
+            name: "interfaceId",
+            type: "bytes4",
+          },
+        ],
+        name: "supportsInterface",
+        outputs: [
+          {
+            internalType: "bool",
+            name: "",
+            type: "bool",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "trustedSigner",
+        outputs: [
+          {
+            internalType: "address",
+            name: "",
+            type: "address",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "policyTypeId",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "tokenId",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "claimableStatus",
+            type: "bool",
+          },
+          {
+            internalType: "uint256",
+            name: "timestamp",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
+          },
+        ],
+        name: "updateClaimStatus",
         outputs: [],
         stateMutability: "nonpayable",
         type: "function",

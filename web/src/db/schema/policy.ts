@@ -14,6 +14,7 @@ export const policyTemplate = pgTable("policy_template", {
   name: varchar("name").notNull(),
   txHash: varchar("tx_hash").notNull(),
   description: varchar("description").notNull().default(""),
+  imageUrl: varchar("image_url").notNull(),
   contractAddress: varchar("contract_address").notNull().unique(),
   policyId: varchar("policy_id").notNull().unique(),
   premiumAmount: numeric("premium_amount").notNull(),

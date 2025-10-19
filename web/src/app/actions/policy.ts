@@ -1,5 +1,5 @@
 "use server";
-import contracts from "@/contracts";
+import contracts from "@/constants/contracts";
 import {
   getContract,
   decodeEventLog,
@@ -13,6 +13,7 @@ import { publicViemClient, walletViemClient } from "../viem";
 import { db } from "@/db";
 import { policyTemplate, userPolicy } from "@/db/schema/policy";
 import { eq } from "drizzle-orm";
+import { DePegPolicyNFTImageURI } from "@/constants/policy";
 
 export async function createPolicy({
   name,
@@ -28,11 +29,9 @@ export async function createPolicy({
   coverageTerms: string[];
 }) {
   try {
-    const mUSDCAddress = process.env.MUSDC as `0x${string}`;
-    const PremiumTreasuryAddress = process.env
-      .PREMIUM_TREASURY_ADDRESS as `0x${string}`;
-    const OracleConsumerAddress = process.env
-      .ORACLE_CONSUMER_ADDRESS as `0x${string}`;
+    const mUSDCAddress = contracts.MUSDC.address;
+    const PremiumTreasuryAddress = contracts.PremiumTreasury.address;
+    const OracleConsumerAddress = contracts.OracleConsumer.address;
 
     const InsuranceFactoryContract = getContract({
       address: contracts.InsuranceFactory.address,
@@ -46,6 +45,7 @@ export async function createPolicy({
       [
         name,
         slug,
+        DePegPolicyNFTImageURI, // mock image
         OracleConsumerAddress,
         PremiumTreasuryAddress,
         mUSDCAddress,
@@ -88,6 +88,7 @@ export async function createPolicy({
         formSchema: {},
         name,
         description,
+        imageUrl: PolicyCreatedEvent.args.imageUrl,
         oracleAddress: OracleConsumerAddress,
         payoutAmount,
         policyId: PolicyCreatedEvent.args.policyId.toString(),

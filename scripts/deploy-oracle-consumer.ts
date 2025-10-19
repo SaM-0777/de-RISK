@@ -3,7 +3,7 @@
 import { network } from "hardhat";
 
 const OWNER = process.env.OWNER as `0x${string}`;
-const InsuranceFactory = "0xd4110dd40fbe33f83a219756024a67b4b2b62d1d";
+const InsuranceFactory = "0x2808ddf884998c667f9c2ca83e17270d52ba7ad6";
 
 if (!OWNER) {
   throw new Error("OWNER is undefined");
@@ -17,4 +17,4 @@ const OracleConsumer = await viem.deployContract("OracleConsumer", [
   InsuranceFactory
 ]);
 
-console.log("Oracle Consumer: ", OracleConsumer.address); // 0xef8b15bc6de1cb9c60fedadeafa2ea3bbfcce5fd
+console.log("Oracle Consumer: ", OracleConsumer.address); // 0x25004adf7fff41c900558bf9133aca3aef2f759b

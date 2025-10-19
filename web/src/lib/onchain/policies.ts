@@ -1,5 +1,5 @@
 import { publicViemClient } from "@/app/viem";
-import contracts from "@/contracts";
+import contracts from "@/constants/contracts";
 
 export async function getPolicies() {
   try {

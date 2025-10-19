@@ -12,7 +12,7 @@ import {
   Hex,
 } from "viem";
 import { baseSepolia } from "viem/chains";
-import contracts from "@/contracts";
+import contracts from "@/constants/contracts";
 import { toast } from "sonner";
 import Link from "next/link";
 

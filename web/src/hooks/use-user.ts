@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import contracts from "@/contracts";
+import contracts from "@/constants/contracts";
 import { usePrivy } from "@privy-io/react-auth";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

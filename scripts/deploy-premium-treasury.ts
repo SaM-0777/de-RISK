@@ -10,7 +10,7 @@ if (!OWNER) {
 
 const { viem } = await network.connect();
 const mUSDC = "0xe418d073ebd73447689c42c5600b9e654cb97e32";
-const InsuranceFactory = "0xd4110dd40fbe33f83a219756024a67b4b2b62d1d";
+const InsuranceFactory = "0x2808ddf884998c667f9c2ca83e17270d52ba7ad6";
 
 const PremiumTreasury = await viem.deployContract("PremiumTreasury", [
   mUSDC,
@@ -18,7 +18,7 @@ const PremiumTreasury = await viem.deployContract("PremiumTreasury", [
   InsuranceFactory,
 ]);
 
-console.log("PremiumTreasury address: ", PremiumTreasury.address); // 0xcb325d226b843dd3dae0c9065a0e7b102374803d
+console.log("PremiumTreasury address: ", PremiumTreasury.address); // 0x93f7ac5f7f1761bd9764418a46927625182e748e
 
 //const DeployedPremiumTreasury = await viem.getContractAt(
 //  "PremiumTreasury",
