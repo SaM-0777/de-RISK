@@ -8,7 +8,7 @@ import {
   http,
   Hex,
 } from "viem";
-import { baseSepolia } from "viem/chains";
+import { sepolia } from "viem/chains";
 import { publicViemClient, walletViemClient } from "../viem";
 import { db } from "@/db";
 import { policyTemplate, userPolicy } from "@/db/schema/policy";
@@ -45,7 +45,8 @@ export async function createPolicy({
       [
         name,
         slug,
-        DePegPolicyNFTImageURI, // mock image
+        description,
+        DePegPolicyNFTImageURI, // mock image (ipfs://)
         OracleConsumerAddress,
         PremiumTreasuryAddress,
         mUSDCAddress,
@@ -53,7 +54,7 @@ export async function createPolicy({
         parseUnits(payoutAmount, 18),
       ],
       {
-        chain: baseSepolia,
+        chain: sepolia,
       }
     );
 
@@ -162,7 +163,7 @@ export async function buyDepegPolicy({
 }) {
   try {
     const publicClient = createPublicClient({
-      chain: baseSepolia,
+      chain: sepolia,
       transport: http(process.env.BASE_SEPOLIA_RPC_URL!),
     });
 

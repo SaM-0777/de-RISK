@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorization } from "@/lib/authorization";
 import z from "zod";
 import { createPublicClient, getContract, Hex, http } from "viem";
-import { baseSepolia } from "viem/chains";
+import { sepolia } from "viem/chains";
 import contracts from "@/constants/contracts";
 import { getCacheValue, setCacheValue } from "@/lib/cache";
 
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     const publicClient = createPublicClient({
       transport: http(BASE_SEPOLIA_RPC_URL),
-      chain: baseSepolia,
+      chain: sepolia,
     });
 
     const PolicyContract = getContract({

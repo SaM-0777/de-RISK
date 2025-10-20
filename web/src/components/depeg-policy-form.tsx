@@ -35,7 +35,7 @@ import {
 } from "viem";
 import { useBalance } from "@/hooks/use-NFT";
 import { toast } from "sonner";
-import { baseSepolia } from "viem/chains";
+import { sepolia } from "viem/chains";
 import { buyDepegPolicy } from "@/app/_actions/policy";
 
 const formSchema = z.object({
@@ -123,16 +123,16 @@ export default function DepegPolicyForm({
 
       try {
         const wallet = wallets[0];
-        await wallet.switchChain(baseSepolia.id);
+        await wallet.switchChain(sepolia.id);
 
         const provider = await wallet.getEthereumProvider();
         const walletClient = createWalletClient({
           account: wallet.address as `0x${string}`,
-          chain: baseSepolia,
+          chain: sepolia,
           transport: custom(provider),
         });
         const publicClient = createPublicClient({
-          chain: baseSepolia,
+          chain: sepolia,
           transport: http(process.env.BASE_SEPOLIA_RPC_URL),
         });
 
@@ -199,16 +199,16 @@ export default function DepegPolicyForm({
 
     try {
       const wallet = wallets[0];
-      await wallet.switchChain(baseSepolia.id);
+      await wallet.switchChain(sepolia.id);
 
       const provider = await wallet.getEthereumProvider();
       const walletClient = createWalletClient({
         account: wallet.address as `0x${string}`,
-        chain: baseSepolia,
+        chain: sepolia,
         transport: custom(provider),
       });
       const publicClient = createPublicClient({
-        chain: baseSepolia,
+        chain: sepolia,
         transport: http(process.env.BASE_SEPOLIA_RPC_URL),
       });
 
