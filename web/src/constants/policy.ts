@@ -1,1 +1,1 @@
-export const DePegPolicyNFTImageURI = "https://drive.usercontent.google.com/download?id=1c-NfSZlwKIkvGQlnHAeZw8hsqEMCNqGz&export=view";
+export const DePegPolicyNFTImageURI = "ipfs://bafybeibco5x6zfjveoomaju4lpbhsc7folnmcgjoelxiy4sdc3ucehbmxq/01.png";

@@ -1,6 +1,6 @@
 import Navbar from "@/components/common/navbar";
 import PolicyCard from "@/components/common/policy-card";
-import { getPolicies } from "./actions/policy";
+import { getPolicies } from "./_actions/policy";
 
 export default async function Home() {
   const { data: policies } = await getPolicies();

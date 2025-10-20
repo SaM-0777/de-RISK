@@ -1,4 +1,4 @@
-import { getPolicyBySlug } from "@/app/actions/policy";
+import { getPolicyBySlug } from "@/app/_actions/policy";
 import DepegPolicyForm from "@/components/depeg-policy-form";
 import React from "react";
 

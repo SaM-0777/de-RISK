@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -32,10 +33,10 @@ import {
   http,
   parseUnits,
 } from "viem";
-import { useBalance } from "@/hooks/use-user";
+import { useBalance } from "@/hooks/use-NFT";
 import { toast } from "sonner";
 import { baseSepolia } from "viem/chains";
-import { buyDepegPolicy } from "@/app/actions/policy";
+import { buyDepegPolicy } from "@/app/_actions/policy";
 
 const formSchema = z.object({
   walletAddress: z
@@ -69,10 +70,7 @@ export default function DepegPolicyForm({
   const { wallets } = useWallets();
   const { connectWallet } = useConnectWallet();
   const [pending, setPending] = useState<boolean>(false);
-  const { balance, error, pendingBalance } = useBalance(
-    contractAddress as Hex,
-    contracts.PolicyContract.abi
-  );
+  const { userNFT, userNFTIsLoading } = useBalance(contractAddress as Hex);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -102,6 +100,80 @@ export default function DepegPolicyForm({
       return;
     } finally {
       setPending(false);
+    }
+  }
+
+  function parseNFTImage(image: string) {
+    if (image.startsWith("ipfs://")) {
+      return image.replace("ipfs://", process.env.PINATA_IPFS_URL!);
+    }
+    return image;
+  }
+
+  async function handlePayPremium() {
+    if (!ready) {
+      toast.info("Auth not ready");
+      return;
+    }
+
+    if (!wallets || wallets.length === 0) {
+      handleConnectWallet();
+    } else {
+      setPending(true);
+
+      try {
+        const wallet = wallets[0];
+        await wallet.switchChain(baseSepolia.id);
+
+        const provider = await wallet.getEthereumProvider();
+        const walletClient = createWalletClient({
+          account: wallet.address as `0x${string}`,
+          chain: baseSepolia,
+          transport: custom(provider),
+        });
+        const publicClient = createPublicClient({
+          chain: baseSepolia,
+          transport: http(process.env.BASE_SEPOLIA_RPC_URL),
+        });
+
+        // approve token
+        const approveHash = await walletClient.writeContract({
+          address: contracts.MUSDC.address,
+          abi: contracts.MUSDC.abi,
+          functionName: "approve",
+          args: [contractAddress as Hex, parseUnits(premiumAmount, 18)],
+        });
+        await publicClient.waitForTransactionReceipt({ hash: approveHash });
+
+        const nextNonce = await publicClient.getTransactionCount({
+          address: wallet.address as `0x${string}`,
+        });
+
+        const payPremiumTx = await walletClient.writeContract({
+          address: contractAddress as Hex,
+          abi: contracts.PolicyContract.abi,
+          functionName: "payPremium",
+          args: [parseUnits("0", 18)],
+          nonce: nextNonce,
+        });
+
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: payPremiumTx,
+        });
+
+        toast.success(`Premium paid successfully ${receipt.transactionHash}`);
+
+        //const { error } = await buyDepegPolicy({
+        //  owner: wallet.address,
+        //  hash: receipt.transactionHash,
+        //  policy: {
+        //    policySlug: slug,
+        //    assetPairAddress: "0x3D4dB4330e4Eb546922088227b5d4CB6BE5cc22a",
+        //    network: form.g.network,
+        //  },
+      } catch (error) {
+        toast.error("Something went wrong");
+      }
     }
   }
 
@@ -153,74 +225,30 @@ export default function DepegPolicyForm({
         address: wallet.address as `0x${string}`,
       });
 
-      if (balance > 0) {
-        console.log({ nextNonce });
+      const buyPremiumTx = await walletClient.writeContract({
+        address: contractAddress as Hex,
+        abi: contracts.PolicyContract.abi,
+        functionName: "buyPolicy",
+        args: [wallet.address as Hex, parseUnits("0", 18)],
+        nonce: nextNonce,
+      });
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: buyPremiumTx,
+      });
 
-        const payPremiumTx = await walletClient.writeContract({
-          address: contractAddress as Hex,
-          abi: contracts.PolicyContract.abi,
-          functionName: "payPremium",
-          args: [parseUnits("0", 18)],
-          nonce: nextNonce,
-        });
+      const { error } = await buyDepegPolicy({
+        owner: wallet.address,
+        hash: receipt.transactionHash,
+        policy: {
+          policySlug: slug,
+          assetPairAddress: "0x3D4dB4330e4Eb546922088227b5d4CB6BE5cc22a",
+          network: data.network,
+        },
+      });
 
-        const receipt = await publicClient.waitForTransactionReceipt({
-          hash: payPremiumTx,
-        });
-
-        const { error } = await buyDepegPolicy({
-          owner: wallet.address,
-          hash: receipt.transactionHash,
-          policy: {
-            policySlug: slug,
-            assetPairAddress: "0x3D4dB4330e4Eb546922088227b5d4CB6BE5cc22a",
-            network: data.network,
-          },
-        });
-
-        if (error) {
-          toast.error(error);
-          return;
-        }
-      } else {
-        console.log({ nextNonce });
-
-        console.log({
-          address: contractAddress as Hex,
-          abi: contracts.PolicyContract.abi,
-          functionName: "buyPolicy",
-          args: [
-            wallet.address as `0x${string}`,
-            parseUnits("0", 18).toString(),
-          ],
-          nonce: nextNonce,
-        });
-
-        const buyPremiumTx = await walletClient.writeContract({
-          address: contractAddress as Hex,
-          abi: contracts.PolicyContract.abi,
-          functionName: "buyPolicy",
-          args: [wallet.address as `0x${string}`, parseUnits("0", 18)],
-          nonce: nextNonce,
-        });
-        const receipt = await publicClient.waitForTransactionReceipt({
-          hash: buyPremiumTx,
-        });
-
-        const { error } = await buyDepegPolicy({
-          owner: wallet.address,
-          hash: receipt.transactionHash,
-          policy: {
-            policySlug: slug,
-            assetPairAddress: "0x3D4dB4330e4Eb546922088227b5d4CB6BE5cc22a",
-            network: data.network,
-          },
-        });
-
-        if (error) {
-          toast.error(error);
-          return;
-        }
+      if (error) {
+        toast.error(error);
+        return;
       }
     } catch (error) {
       console.error(`buyDepegPolicy failed:`, error);
@@ -231,104 +259,125 @@ export default function DepegPolicyForm({
   }
 
   return (
-    <div className="mt-8 space-y-6">
-      <h2 className="text-3xl font-semibold">Input</h2>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="walletAddress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Wallet Address</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled
-                    placeholder="0x1234567890123456789012345678901234567890"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Enter your Ethereum wallet address
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex items-center gap-4">
-            <FormField
-              control={form.control}
-              name="network"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Network</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a network" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Ethereum">Ethereum</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="depegAsset"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Asset</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select an asset" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="TUSD/TETH">TUSD/TETH</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <div className="mt-8">
+      {userNFT?.balance && Number(userNFT.balance) ? (
+        <div className="space-y-6">
+          <h2 className="text-3xl font-semibold">Your Policy NFT</h2>
+          <div className="grid grid-cols-4 gap-4">
+            {userNFT?.nfts.map((nft, i) => (
+              <Image
+                key={i}
+                src={parseNFTImage(nft.tokenURI.image)}
+                width={256}
+                height={256}
+                alt="nft"
+              />
+            ))}
           </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <h2 className="text-3xl font-semibold">Input</h2>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="walletAddress"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Wallet Address</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled
+                        placeholder="0x1234567890123456789012345678901234567890"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Enter your Ethereum wallet address
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          {!wallets.length ? (
-            <Button
-              type="button"
-              disabled={pending}
-              onClick={handleConnectWallet}
-            >
-              Connect Wallet
-            </Button>
-          ) : (
-            <Button
-              type="submit"
-              disabled={form.formState.isSubmitting || pendingBalance || !ready}
-              className="w-full"
-            >
-              {balance > 0
-                ? `Your balance ${balance} Pay Premium`
-                : form.formState.isSubmitting
-                ? "Submitting..."
-                : "Buy Policy"}
-            </Button>
-          )}
-        </form>
-      </Form>
+              <div className="flex items-center gap-4">
+                <FormField
+                  control={form.control}
+                  name="network"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Network</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a network" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Ethereum">Ethereum</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="depegAsset"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Asset</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an asset" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="TUSD/TETH">TUSD/TETH</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {!wallets.length ? (
+                <Button
+                  type="button"
+                  disabled={pending}
+                  onClick={handleConnectWallet}
+                >
+                  Connect Wallet
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={
+                    form.formState.isSubmitting || userNFTIsLoading || !ready
+                  }
+                  className="w-full"
+                >
+                  {userNFT?.balance && Number(userNFT?.balance) > 0
+                    ? `Your balance ${Number(userNFT?.balance)} Pay Premium`
+                    : form.formState.isSubmitting
+                      ? "Submitting..."
+                      : "Buy Policy"}
+                </Button>
+              )}
+            </form>
+          </Form>
+        </div>
+      )}
     </div>
   );
 }

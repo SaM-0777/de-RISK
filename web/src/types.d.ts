@@ -24,3 +24,15 @@ type PolicyTemplate = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+type UserPolicyNFT = {
+  balance: string;
+  nfts: {
+    tokenId: string | number;
+    tokenURI: {
+      name: string;
+      description: string;
+      image: string;
+    };
+  }[];
+};
