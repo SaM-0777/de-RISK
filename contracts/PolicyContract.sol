@@ -38,6 +38,7 @@ contract PolicyContract is
 
     string public policyName;
     string public policyDescription;
+    string public policySlug;
     string public imageUrl;
     uint256 public policyId;
     address public oracle;
@@ -54,20 +55,23 @@ contract PolicyContract is
         uint256 tokenId,
         address owner,
         uint256 expiry,
-        string tokenURI
+        string tokenURI,
+        string policySlug
     );
-    event PremiumPaid(uint256 tokenId, uint256 amount);
+    event PremiumPaid(uint256 tokenId, uint256 amount, string policySlug);
     event ClaimProcessed(
         uint256 tokenId,
         address owner,
         uint256 amount,
-        bool success
+        bool success,
+        string policySlug
     );
-    event ParamsUpdated(uint256 premiumAmount, uint256 payoutAmount);
+    event ParamsUpdated(uint256 premiumAmount, uint256 payoutAmount, string policySlug);
 
     constructor(
         string memory _name,
-        string memory _description,
+        string memory _slug,
+        string memory _policyDescription,
         string memory _imageUrl,
         uint256 _policyId,
         address _oracle,
@@ -77,7 +81,8 @@ contract PolicyContract is
         uint256 _payoutAmount
     ) ERC721(_name, "DERISK") {
         policyName = _name;
-        policyDescription = _description;
+        policySlug = _slug;
+        policyDescription = _policyDescription;
         imageUrl = _imageUrl;
         policyId = _policyId;
         oracle = _oracle;
@@ -118,7 +123,7 @@ contract PolicyContract is
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, tokenUri);
 
-        emit PolicyPurchased(tokenId, owner, expiry, tokenUri);
+        emit PolicyPurchased(tokenId, owner, expiry, tokenUri, policySlug);
     }
 
     function payPremium(uint256 tokenId) external {
@@ -138,7 +143,7 @@ contract PolicyContract is
         lastPremiumPaid[tokenId] = block.timestamp;
         policies[tokenId].premiumPaid = true;
 
-        emit PremiumPaid(tokenId, premiumAmount);
+        emit PremiumPaid(tokenId, premiumAmount, policySlug);
     }
 
     function claim(uint256 tokenId) external {
@@ -161,7 +166,7 @@ contract PolicyContract is
             "Payout failed"
         );
         _burn(tokenId); // Single-claim policy
-        emit ClaimProcessed(tokenId, msg.sender, payoutAmount, true);
+        emit ClaimProcessed(tokenId, msg.sender, payoutAmount, true, policySlug);
     }
 
     function updateClaimStatus(
@@ -191,7 +196,8 @@ contract PolicyContract is
                 tokenId,
                 policies[tokenId].owner,
                 payoutAmount,
-                true
+                true,
+                policySlug
             );
         }
     }
@@ -236,7 +242,7 @@ contract PolicyContract is
         require(_premiumAmount > 0 && _payoutAmount > 0, "Invalid amounts");
         premiumAmount = _premiumAmount;
         payoutAmount = _payoutAmount;
-        emit ParamsUpdated(_premiumAmount, _payoutAmount);
+        emit ParamsUpdated(_premiumAmount, _payoutAmount, policySlug);
     }
 
     // The following functions are overrides required by Solidity.

@@ -60,6 +60,12 @@ const contracts = {
           {
             indexed: false,
             internalType: "string",
+            name: "slug",
+            type: "string",
+          },
+          {
+            indexed: false,
+            internalType: "string",
             name: "imageUrl",
             type: "string",
           },
@@ -202,6 +208,11 @@ const contracts = {
           },
           {
             internalType: "string",
+            name: "slug",
+            type: "string",
+          },
+          {
+            internalType: "string",
             name: "description",
             type: "string",
           },
@@ -265,7 +276,7 @@ const contracts = {
               },
               {
                 internalType: "string",
-                name: "description",
+                name: "slug",
                 type: "string",
               },
               {
@@ -321,7 +332,7 @@ const contracts = {
               },
               {
                 internalType: "string",
-                name: "description",
+                name: "slug",
                 type: "string",
               },
               {
@@ -436,7 +447,7 @@ const contracts = {
           },
           {
             internalType: "string",
-            name: "description",
+            name: "slug",
             type: "string",
           },
           {
@@ -1009,7 +1020,12 @@ const contracts = {
           },
           {
             internalType: "string",
-            name: "_description",
+            name: "_slug",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "_policyDescription",
             type: "string",
           },
           {
@@ -1292,6 +1308,12 @@ const contracts = {
             name: "success",
             type: "bool",
           },
+          {
+            indexed: false,
+            internalType: "string",
+            name: "policySlug",
+            type: "string",
+          },
         ],
         name: "ClaimProcessed",
         type: "event",
@@ -1324,6 +1346,12 @@ const contracts = {
             name: "payoutAmount",
             type: "uint256",
           },
+          {
+            indexed: false,
+            internalType: "string",
+            name: "policySlug",
+            type: "string",
+          },
         ],
         name: "ParamsUpdated",
         type: "event",
@@ -1355,6 +1383,12 @@ const contracts = {
             name: "tokenURI",
             type: "string",
           },
+          {
+            indexed: false,
+            internalType: "string",
+            name: "policySlug",
+            type: "string",
+          },
         ],
         name: "PolicyPurchased",
         type: "event",
@@ -1373,6 +1407,12 @@ const contracts = {
             internalType: "uint256",
             name: "amount",
             type: "uint256",
+          },
+          {
+            indexed: false,
+            internalType: "string",
+            name: "policySlug",
+            type: "string",
           },
         ],
         name: "PremiumPaid",
@@ -1881,6 +1921,19 @@ const contracts = {
       {
         inputs: [],
         name: "policyName",
+        outputs: [
+          {
+            internalType: "string",
+            name: "",
+            type: "string",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [],
+        name: "policySlug",
         outputs: [
           {
             internalType: "string",

@@ -8,7 +8,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const policyTemplate = pgTable("policy_template", {
+export const policyTemplate = pgTable("policy_template", { // for admin use
   id: varchar("id").primaryKey().$defaultFn(nanoid),
   slug: varchar("slug").unique().notNull(),
   name: varchar("name").notNull(),
@@ -36,7 +36,7 @@ export const userPolicyClaimStatusEnum = pgEnum("user_policy_claim_status", [
   "active",
 ]);
 
-export const userPolicy = pgTable("user_policy", {
+export const userPolicy = pgTable("user_policy", {  // keep track of users policy and premiums
   id: varchar("id").primaryKey().$defaultFn(nanoid),
   policyTemplateSlug: varchar("policy_template_slug")
     .references(() => policyTemplate.slug)

@@ -21,7 +21,7 @@ contract InsuranceFactory is AccessControl {
     struct Policy {
         uint256 policyId;
         string name;
-        string description;
+        string slug;
         address policyContract;
         address oracle;
         uint256 premiumAmount;
@@ -31,7 +31,7 @@ contract InsuranceFactory is AccessControl {
     mapping(uint256 => Policy) public policies;
     uint256 public policyCount;
 
-    event PolicyCreated(uint256 policyId, address policyContract, string name, string imageUrl);
+    event PolicyCreated(uint256 policyId, address policyContract, string name, string slug, string imageUrl);
     event PolicyUpdated(
         uint256 policyId,
         uint256 premiumAmount,
@@ -45,6 +45,7 @@ contract InsuranceFactory is AccessControl {
 
     function createPolicy(
         string memory name,
+        string memory slug,
         string memory description,
         string memory imageUrl,
         address oracle,
@@ -57,6 +58,7 @@ contract InsuranceFactory is AccessControl {
 
         PolicyContract policyContract = new PolicyContract(
             name,
+            slug,
             description,
             imageUrl,
             policyId,
@@ -69,8 +71,8 @@ contract InsuranceFactory is AccessControl {
 
         policies[policyId] = Policy({
             policyId: policyId,
+            slug: slug,
             name: name,
-            description: description,
             policyContract: address(policyContract),
             oracle: oracle,
             premiumAmount: premiumAmount,
@@ -83,7 +85,7 @@ contract InsuranceFactory is AccessControl {
             address(policyContract)
         );
 
-        emit PolicyCreated(policyId, address(policyContract), name, imageUrl);
+        emit PolicyCreated(policyId, address(policyContract), name, slug, imageUrl);
     }
 
     function updatePolicy(
