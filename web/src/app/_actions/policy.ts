@@ -11,7 +11,7 @@ import {
 import { sepolia } from "viem/chains";
 import { publicViemClient, walletViemClient } from "../viem";
 import { db } from "@/db";
-import { policyTemplate, userPolicy } from "@/db/schema/policy";
+import { policyTemplate, premium, userPolicy } from "@/db/schema/policy";
 import { eq } from "drizzle-orm";
 import { DePegPolicyNFTImageURI } from "@/constants/policy";
 
@@ -164,25 +164,46 @@ export async function buyDepegPolicy({
   try {
     const publicClient = createPublicClient({
       chain: sepolia,
-      transport: http(process.env.BASE_SEPOLIA_RPC_URL!),
+      transport: http(process.env.INFURA_RPC_URL!),
     });
 
-    const receipt = await publicClient.getTransaction({ hash: hash as Hex });
-    const value = receipt.value.toString();
+    const receipt = await publicClient.waitForTransactionReceipt({
+      hash: hash as Hex,
+    });
 
-    console.log({ value });
+    const logs = receipt.logs;
+    const decodedEvents = [];
+
+    for (const log of logs) {
+      const decodedEvent = decodeEventLog({
+        abi: contracts.PolicyContract.abi,
+        topics: log.topics,
+        data: log.data,
+      });
+
+      decodedEvents.push(decodedEvent);
+    }
+
+    const PolicyPurchasedEvent = decodedEvents.find(
+      (e) => e.eventName === "PolicyPurchased"
+    );
+    if (!PolicyPurchasedEvent) {
+      throw new Error(`Policy purchased is event not found`);
+    }
 
     const [newUserPolicy] = await db
       .insert(userPolicy)
       .values({
-        policyTemplateSlug: policy.policySlug,
+        policyTemplateSlug: PolicyPurchasedEvent.args.policySlug,
         ownerAddress: owner,
-        premiumPaid: value,
+        premiumPaid: PolicyPurchasedEvent.args.amount.toString(),
         txHash: hash,
+        tokenId: PolicyPurchasedEvent.args.tokenId.toString(),
         inputs: {
           network: policy.network,
           assetPairAddress: policy.assetPairAddress,
         },
+        status: "verified",
       })
       .returning();
 
@@ -192,6 +213,64 @@ export async function buyDepegPolicy({
   } catch (error) {
     console.error(`web.src.app.actions.policy.buyDepegPolicy.error ${error}`);
     return {
+      error: "Internal server error",
+    };
+  }
+}
+
+export async function payPremium({
+  hash,
+  policyId,
+}: {
+  hash: string;
+  policyId: string;
+}) {
+  try {
+    const publicClient = createPublicClient({
+      chain: sepolia,
+      transport: http(process.env.INFURA_RPC_URL!),
+    });
+
+    const receipt = await publicClient.waitForTransactionReceipt({
+      hash: hash as Hex,
+    });
+
+    const logs = receipt.logs;
+    const decodedEvents = [];
+
+    for (const log of logs) {
+      const decodedEvent = decodeEventLog({
+        abi: contracts.PolicyContract.abi,
+        topics: log.topics,
+        data: log.data,
+      });
+
+      decodedEvents.push(decodedEvent);
+    }
+
+    const PremiumPaidEvent = decodedEvents.find(
+      (e) => e.eventName === "PremiumPaid"
+    );
+    if (!PremiumPaidEvent) {
+      throw new Error(`Premium Paid event not found`);
+    }
+
+    await db.insert(premium).values({
+      ownerAddress: receipt.from,
+      policyTemplateSlug: PremiumPaidEvent.args.policySlug,
+      premiumPaid: PremiumPaidEvent.args.amount.toString(),
+      txHash: hash,
+      userPolicyId: policyId,
+    });
+
+    return {
+      data: true,
+      error: null,
+    };
+  } catch (error) {
+    console.error(`src.app._actions.policy.payPremium.error ${error}`);
+    return {
+      data: null,
       error: "Internal server error",
     };
   }

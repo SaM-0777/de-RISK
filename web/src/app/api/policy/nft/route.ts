@@ -7,7 +7,7 @@ import { sepolia } from "viem/chains";
 import contracts from "@/constants/contracts";
 import { getCacheValue, setCacheValue } from "@/lib/cache";
 
-const BASE_SEPOLIA_RPC_URL = process.env.BASE_SEPOLIA_RPC_URL;
+const INFURA_RPC_URL = process.env.INFURA_RPC_URL;
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,14 +41,14 @@ export async function POST(request: NextRequest) {
 
     const { policyAddress, userWalletAddress } = validatedBody.data;
 
-    const key = `nft-${userWalletAddress}-${policyAddress}`;
-    const cachedData = await getCacheValue(key);
-    if (cachedData) {
-      return NextResponse.json(cachedData, { status: 200 });
-    }
+    //const key = `nft-${userWalletAddress}-${policyAddress}`;
+    //const cachedData = await getCacheValue(key);
+    //if (cachedData) {
+    //  return NextResponse.json(cachedData, { status: 200 });
+    //}
 
     const publicClient = createPublicClient({
-      transport: http(BASE_SEPOLIA_RPC_URL),
+      transport: http(INFURA_RPC_URL),
       chain: sepolia,
     });
 
@@ -91,10 +91,11 @@ export async function POST(request: NextRequest) {
       nfts,
     };
 
-    await setCacheValue(key, response);
+    //await setCacheValue(key, response);
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
+    console.error(`src.app.api.policy.nft.route.error ${error}`)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

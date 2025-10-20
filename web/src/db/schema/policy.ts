@@ -8,7 +8,8 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const policyTemplate = pgTable("policy_template", { // for admin use
+export const policyTemplate = pgTable("policy_template", {
+  // for admin use
   id: varchar("id").primaryKey().$defaultFn(nanoid),
   slug: varchar("slug").unique().notNull(),
   name: varchar("name").notNull(),
@@ -36,12 +37,15 @@ export const userPolicyClaimStatusEnum = pgEnum("user_policy_claim_status", [
   "active",
 ]);
 
-export const userPolicy = pgTable("user_policy", {  // keep track of users policy and premiums
+export const userPolicy = pgTable("user_policy", {
+  // keep track of users policy
   id: varchar("id").primaryKey().$defaultFn(nanoid),
   policyTemplateSlug: varchar("policy_template_slug")
     .references(() => policyTemplate.slug)
     .notNull(),
   ownerAddress: varchar("owner_address").notNull(),
+  tokenId: numeric("token_id").notNull().default("0"),
+  expiry: timestamp("expiry"),
   txHash: varchar("tx_hash").notNull(),
   premiumPaid: numeric("premium_paid").notNull(),
   status: userPolicyStatusEnum().notNull().default("pending"),
@@ -52,6 +56,23 @@ export const userPolicy = pgTable("user_policy", {  // keep track of users polic
       | { flightNumber: string; date: string }
     >()
     .notNull(),
+
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const premium = pgTable("premium", {
+  // keep track of users policy premiums
+  id: varchar("id").primaryKey().$defaultFn(nanoid),
+  policyTemplateSlug: varchar("policy_template_slug")
+    .references(() => policyTemplate.slug)
+    .notNull(),
+  userPolicyId: varchar("user_policy_id")
+    .references(() => userPolicy.id)
+    .notNull(),
+  ownerAddress: varchar("owner_address").notNull(),
+  txHash: varchar("tx_hash").notNull(),
+  premiumPaid: numeric("premium_paid").notNull(),
 
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

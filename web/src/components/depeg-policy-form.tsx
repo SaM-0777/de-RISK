@@ -36,7 +36,7 @@ import {
 import { useBalance } from "@/hooks/use-NFT";
 import { toast } from "sonner";
 import { sepolia } from "viem/chains";
-import { buyDepegPolicy } from "@/app/_actions/policy";
+import { buyDepegPolicy, payPremium } from "@/app/_actions/policy";
 
 const formSchema = z.object({
   walletAddress: z
@@ -62,7 +62,7 @@ const formSchema = z.object({
 });
 
 export default function DepegPolicyForm({
-  policy: { contractAddress, premiumAmount, payoutAmount, slug },
+  policy: { id, contractAddress, premiumAmount, payoutAmount, slug },
 }: {
   policy: PolicyTemplate;
 }) {
@@ -105,7 +105,10 @@ export default function DepegPolicyForm({
 
   function parseNFTImage(image: string) {
     if (image.startsWith("ipfs://")) {
-      return image.replace("ipfs://", process.env.PINATA_IPFS_URL!);
+      return image.replace(
+        "ipfs://",
+        `${process.env.NEXT_PUBLIC_PINATA_IPFS_URL}/ipfs/`!
+      );
     }
     return image;
   }
@@ -133,7 +136,7 @@ export default function DepegPolicyForm({
         });
         const publicClient = createPublicClient({
           chain: sepolia,
-          transport: http(process.env.BASE_SEPOLIA_RPC_URL),
+          transport: http(process.env.INFURA_RPC_URL),
         });
 
         // approve token
@@ -163,16 +166,18 @@ export default function DepegPolicyForm({
 
         toast.success(`Premium paid successfully ${receipt.transactionHash}`);
 
-        //const { error } = await buyDepegPolicy({
-        //  owner: wallet.address,
-        //  hash: receipt.transactionHash,
-        //  policy: {
-        //    policySlug: slug,
-        //    assetPairAddress: "0x3D4dB4330e4Eb546922088227b5d4CB6BE5cc22a",
-        //    network: form.g.network,
-        //  },
+        const { error } = await payPremium({
+          hash: receipt.transactionHash,
+          policyId: id,
+        });
+
+        if (error) {
+          toast.error(error);
+        }
       } catch (error) {
         toast.error("Something went wrong");
+      } finally {
+        setPending(false);
       }
     }
   }
@@ -209,7 +214,7 @@ export default function DepegPolicyForm({
       });
       const publicClient = createPublicClient({
         chain: sepolia,
-        transport: http(process.env.BASE_SEPOLIA_RPC_URL),
+        transport: http(process.env.INFURA_RPC_URL),
       });
 
       // approve token
@@ -258,6 +263,10 @@ export default function DepegPolicyForm({
     }
   }
 
+  if (!ready || userNFTIsLoading) {
+    return <div />;
+  }
+
   return (
     <div className="mt-8">
       {userNFT?.balance && Number(userNFT.balance) ? (
@@ -273,6 +282,11 @@ export default function DepegPolicyForm({
                 alt="nft"
               />
             ))}
+          </div>
+          <div>
+            <Button type="button" disabled={pending} onClick={handlePayPremium}>
+              {`Pay Premium $${premiumAmount}`}
+            </Button>
           </div>
         </div>
       ) : (

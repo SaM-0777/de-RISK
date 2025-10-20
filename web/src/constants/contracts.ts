@@ -1379,6 +1379,12 @@ const contracts = {
           },
           {
             indexed: false,
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            indexed: false,
             internalType: "string",
             name: "tokenURI",
             type: "string",

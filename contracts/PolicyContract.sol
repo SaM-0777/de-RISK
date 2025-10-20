@@ -55,6 +55,7 @@ contract PolicyContract is
         uint256 tokenId,
         address owner,
         uint256 expiry,
+        uint256 amount,
         string tokenURI,
         string policySlug
     );
@@ -123,7 +124,7 @@ contract PolicyContract is
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, tokenUri);
 
-        emit PolicyPurchased(tokenId, owner, expiry, tokenUri, policySlug);
+        emit PolicyPurchased(tokenId, owner, expiry, premiumAmount, tokenUri, policySlug);
     }
 
     function payPremium(uint256 tokenId) external {
