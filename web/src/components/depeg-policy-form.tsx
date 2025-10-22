@@ -62,8 +62,10 @@ const formSchema = z.object({
 });
 
 export default function DepegPolicyForm({
-  policy: { id, contractAddress, premiumAmount, payoutAmount, slug },
+  userPolicyId,
+  policy: { contractAddress, premiumAmount, slug },
 }: {
+  userPolicyId: string | null;
   policy: PolicyTemplate;
 }) {
   const { ready, user } = usePrivy();
@@ -119,6 +121,11 @@ export default function DepegPolicyForm({
       return;
     }
 
+    if (!userPolicyId) {
+      toast.error("You need to buy this policy first");
+      return;
+    }
+
     if (!wallets || wallets.length === 0) {
       handleConnectWallet();
     } else {
@@ -168,7 +175,7 @@ export default function DepegPolicyForm({
 
         const { error } = await payPremium({
           hash: receipt.transactionHash,
-          policyId: id,
+          userPolicyId,
         });
 
         if (error) {
@@ -264,7 +271,7 @@ export default function DepegPolicyForm({
   }
 
   if (!ready || userNFTIsLoading) {
-    return <div />;
+    return <div>Loading user balance...</div>;
   }
 
   return (

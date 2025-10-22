@@ -1,5 +1,6 @@
 import { getPolicyBySlug } from "@/app/_actions/policy";
 import DepegPolicyForm from "@/components/depeg-policy-form";
+import PremiumActivity from "@/components/premium-activity";
 import React from "react";
 
 export default async function PolicyPage({
@@ -14,20 +15,24 @@ export default async function PolicyPage({
     <div className="w-full h-full">
       {policy ? (
         <div className="max-w-4xl mx-auto p-8">
-          <h1 className="text-4xl font-bold mb-4">{policy.name}</h1>
-          <p className="text-lg mb-6">{policy.description}</p>
+          <h1 className="text-4xl font-bold mb-4">
+            {policy.policy_template.name}
+          </h1>
+          <p className="text-lg mb-6">{policy.policy_template.description}</p>
           <div className="prose prose-lg">
             <h2>Payout Amount</h2>
-            <p>{policy.payoutAmount} USDC</p>
+            <p>{policy.policy_template.payoutAmount} USDC</p>
             <h2>Premium Amount</h2>
-            <p>{policy.premiumAmount} USDC</p>
+            <p>{policy.policy_template.premiumAmount} USDC</p>
           </div>
 
-          {policy.slug === "depeg_insurance" ? (
+          <div className="space-y-6">
             <DepegPolicyForm
-              policy={policy}
+              policy={policy.policy_template}
+              userPolicyId={policy.user_policy?.id ?? null}
             />
-          ) : null}
+            <PremiumActivity policySlug={policy.policy_template.slug} />
+          </div>
         </div>
       ) : (
         <div className="flex items-center justify-center h-full">

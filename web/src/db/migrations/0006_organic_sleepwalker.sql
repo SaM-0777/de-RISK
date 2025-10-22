@@ -1,0 +1,1 @@
+ALTER TABLE "user_policy" ADD COLUMN "token_uri" varchar NOT NULL DEFAULT '';

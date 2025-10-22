@@ -7,6 +7,7 @@ import {
   createPublicClient,
   http,
   Hex,
+  formatUnits,
 } from "viem";
 import { sepolia } from "viem/chains";
 import { publicViemClient, walletViemClient } from "../viem";
@@ -134,6 +135,10 @@ export async function getPolicyBySlug(slug: string) {
     const [policy] = await db
       .select()
       .from(policyTemplate)
+      .leftJoin(
+        userPolicy,
+        eq(userPolicy.policyTemplateSlug, policyTemplate.slug)
+      )
       .where(eq(policyTemplate.slug, slug))
       .limit(1);
 
@@ -171,7 +176,9 @@ export async function buyDepegPolicy({
       hash: hash as Hex,
     });
 
-    const logs = receipt.logs;
+    const logs = receipt.logs.filter(
+      (log) => log.address.toLowerCase() === receipt.to?.toLowerCase()
+    );
     const decodedEvents = [];
 
     for (const log of logs) {
@@ -187,6 +194,11 @@ export async function buyDepegPolicy({
     const PolicyPurchasedEvent = decodedEvents.find(
       (e) => e.eventName === "PolicyPurchased"
     );
+
+    console.log({
+      PolicyPurchasedEvent,
+    });
+
     if (!PolicyPurchasedEvent) {
       throw new Error(`Policy purchased is event not found`);
     }
@@ -195,10 +207,11 @@ export async function buyDepegPolicy({
       .insert(userPolicy)
       .values({
         policyTemplateSlug: PolicyPurchasedEvent.args.policySlug,
-        ownerAddress: owner,
-        premiumPaid: PolicyPurchasedEvent.args.amount.toString(),
+        ownerAddress: PolicyPurchasedEvent.args.owner.toString(),
+        premiumPaid: formatUnits(PolicyPurchasedEvent.args.amount, 18),
         txHash: hash,
         tokenId: PolicyPurchasedEvent.args.tokenId.toString(),
+        tokenURI: PolicyPurchasedEvent.args.tokenURI,
         inputs: {
           network: policy.network,
           assetPairAddress: policy.assetPairAddress,
@@ -220,10 +233,10 @@ export async function buyDepegPolicy({
 
 export async function payPremium({
   hash,
-  policyId,
+  userPolicyId,
 }: {
   hash: string;
-  policyId: string;
+  userPolicyId: string;
 }) {
   try {
     const publicClient = createPublicClient({
@@ -235,7 +248,9 @@ export async function payPremium({
       hash: hash as Hex,
     });
 
-    const logs = receipt.logs;
+    const logs = receipt.logs.filter(
+      (log) => log.address.toLowerCase() === receipt.to?.toLowerCase()
+    );
     const decodedEvents = [];
 
     for (const log of logs) {
@@ -258,9 +273,9 @@ export async function payPremium({
     await db.insert(premium).values({
       ownerAddress: receipt.from,
       policyTemplateSlug: PremiumPaidEvent.args.policySlug,
-      premiumPaid: PremiumPaidEvent.args.amount.toString(),
+      premiumPaid: formatUnits(PremiumPaidEvent.args.amount, 18),
       txHash: hash,
-      userPolicyId: policyId,
+      userPolicyId,
     });
 
     return {
@@ -275,3 +290,17 @@ export async function payPremium({
     };
   }
 }
+
+//createPolicy({
+//  name: "DeFi Shield",
+//  description: "Covers losses from smart contract exploits, rug pulls, and DeFi protocol failures.",
+//  coverageTerms: [],
+//  payoutAmount: "500",
+//  premiumAmount: "20"
+//}).then(d => {
+//  console.log(d)
+//  process.exit(0)
+//}).catch(e => {
+//  console.error(e)
+//  process.exit(1)
+//})

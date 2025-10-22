@@ -2,7 +2,7 @@ import { Hex } from "viem";
 
 const contracts = {
   InsuranceFactory: {
-    address: "0xfbedd9f9cf716e8dbfcfcd1876e5825d0c568e49" as Hex,
+    address: "0x8a806c901f73826b1666c9e752c597e583c800ce" as Hex,
     abi: [
       {
         inputs: [
@@ -568,7 +568,7 @@ const contracts = {
     ] as const,
   },
   PremiumTreasury: {
-    address: "0x26cbca6e19902c92f4651410d1f5c43dcb721f24" as Hex,
+    address: "0x0f6571c1e7a1ad2dbbf01db345058711416b0d1e" as Hex,
     abi: [
       {
         inputs: [
@@ -2673,7 +2673,7 @@ const contracts = {
     ] as const,
   },
   OracleConsumer: {
-    address: "0xd6e675e813776b0f22ed98a630115eaa235b99bb" as Hex,
+    address: "0xd91380667d10ebf9995147d9e2761863ea06f133" as Hex,
     abi: [
       {
         inputs: [

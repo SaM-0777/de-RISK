@@ -5,7 +5,7 @@ import z from "zod";
 import { createPublicClient, getContract, Hex, http } from "viem";
 import { sepolia } from "viem/chains";
 import contracts from "@/constants/contracts";
-import { getCacheValue, setCacheValue } from "@/lib/cache";
+//import { getCacheValue, setCacheValue } from "@/lib/cache";
 
 const INFURA_RPC_URL = process.env.INFURA_RPC_URL;
 

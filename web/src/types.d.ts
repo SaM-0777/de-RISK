@@ -8,6 +8,40 @@ type Policy = {
   payoutAmount: string;
 };
 
+type UserPolicy = {
+  id: string;
+  policyTemplateSlug: string;
+  ownerAddress: string;
+  tokenId: string;
+  expiry: Date | null;
+  txHash: string;
+  premiumPaid: string;
+  status: "pending" | "verified";
+  claimStatus: "claimed" | "active";
+  inputs:
+    | {
+        network: string;
+        assetPairAddress: string;
+      }
+    | {
+        flightNumber: string;
+        date: string;
+      };
+  createdAt: string;
+  updatedAt: string;
+};
+
+type Premium = {
+  id: string;
+  policyTemplateSlug: string;
+  userPolicyId: string;
+  ownerAddress: string;
+  txHash: string;
+  premiumPaid: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 type PolicyTemplate = {
   id: string;
   slug: string;

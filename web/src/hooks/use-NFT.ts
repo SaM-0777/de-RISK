@@ -26,9 +26,10 @@ export function useBalance(policyAddress: Hex) {
         }),
       }),
     {
-      revalidateIfStale: false,
-      revalidateOnReconnect: false,
-      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateIfStale: true,
+      revalidateOnReconnect: true,
+      revalidateOnFocus: true,
     }
   );
 

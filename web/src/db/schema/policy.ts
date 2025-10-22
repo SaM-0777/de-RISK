@@ -20,7 +20,7 @@ export const policyTemplate = pgTable("policy_template", {
   policyId: varchar("policy_id").notNull().unique(),
   premiumAmount: numeric("premium_amount").notNull(),
   payoutAmount: numeric("payout_amount").notNull(),
-  oracleAddress: varchar("oracle_address").notNull().unique(),
+  oracleAddress: varchar("oracle_address").notNull(),
   coverageTerms: varchar("coverage_terms").array().notNull().default([]),
   formSchema: jsonb("form_schema").notNull(),
 
@@ -45,6 +45,7 @@ export const userPolicy = pgTable("user_policy", {
     .notNull(),
   ownerAddress: varchar("owner_address").notNull(),
   tokenId: numeric("token_id").notNull().default("0"),
+  tokenURI: varchar("token_uri").notNull().default(""),
   expiry: timestamp("expiry"),
   txHash: varchar("tx_hash").notNull(),
   premiumPaid: numeric("premium_paid").notNull(),

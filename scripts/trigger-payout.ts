@@ -9,14 +9,14 @@ const { viem } = await network.connect();
 
 const publicClient = await viem.getPublicClient();
 
-const OracleConsumerAddress = "0xc8F93E138cfa045eFd864eD9DC1623FB1DB79802";
+const OracleConsumerAddress = "0xd6e675e813776b0f22ed98a630115eaa235b99bb";
 
 const OracleConsumer = await viem.getContractAt(
   "OracleConsumer",
   OracleConsumerAddress
 );
 
-const SignerAddress = await OracleConsumer.read.trustedSigner();
+
 
 
 
