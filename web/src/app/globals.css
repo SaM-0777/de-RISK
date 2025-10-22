@@ -41,6 +41,13 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --color-midnight-purple: var(--color-midnight-purple);
+  --color-purple-heart: var(--color-purple-heart);
+  --color-lavender-indigo: var(--color-lavender-indigo);
+  --color-seashell: var(--color-seashell);
+
+  --font-delight: var(--font-delight);
 }
 
 :root {
@@ -76,6 +83,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  --color-midnight-purple: #0F032D;
+  --color-purple-heart: #4E2BCC;
+  --color-lavender-indigo: #905BF4;
+  --color-seashell: #EFEFEF;
 }
 
 .dark {

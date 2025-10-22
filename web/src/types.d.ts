@@ -13,7 +13,8 @@ type UserPolicy = {
   policyTemplateSlug: string;
   ownerAddress: string;
   tokenId: string;
-  expiry: Date | null;
+  tokenURI: string;
+  expiry: string | null;
   txHash: string;
   premiumPaid: string;
   status: "pending" | "verified";

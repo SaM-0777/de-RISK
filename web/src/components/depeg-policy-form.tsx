@@ -37,6 +37,7 @@ import { useBalance } from "@/hooks/use-NFT";
 import { toast } from "sonner";
 import { sepolia } from "viem/chains";
 import { buyDepegPolicy, payPremium } from "@/app/_actions/policy";
+import { parseNFTImage } from "@/utils/nft";
 
 const formSchema = z.object({
   walletAddress: z
@@ -103,16 +104,6 @@ export default function DepegPolicyForm({
     } finally {
       setPending(false);
     }
-  }
-
-  function parseNFTImage(image: string) {
-    if (image.startsWith("ipfs://")) {
-      return image.replace(
-        "ipfs://",
-        `${process.env.NEXT_PUBLIC_PINATA_IPFS_URL}/ipfs/`!
-      );
-    }
-    return image;
   }
 
   async function handlePayPremium() {

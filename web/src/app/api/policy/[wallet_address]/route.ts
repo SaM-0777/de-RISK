@@ -1,7 +1,7 @@
 import { db } from "@/db";
-import { premium, userPolicy } from "@/db/schema/policy";
+import { policyTemplate, premium, userPolicy } from "@/db/schema/policy";
 import { authorization } from "@/lib/authorization";
-import { and, count, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -25,18 +25,22 @@ export async function GET(
       eq(sql`LOWER(${premium.ownerAddress})`, wallet_address.toLowerCase())
     );
 
-    const [totalCount] = await db
-      .select({
-        count: count(premium.id),
-      })
-      .from(premium)
-      .where(filterCondition);
+    //const [totalCount] = await db
+    //  .select({
+    //    count: count(premium.id),
+    //  })
+    //  .from(premium)
+    //  .where(filterCondition);
 
-    const premiumCount = totalCount.count ?? 0;
+    //const premiumCount = totalCount.count ?? 0;
 
     const userPolicies = await db
       .select()
       .from(userPolicy)
+      .innerJoin(
+        policyTemplate,
+        eq(policyTemplate.slug, userPolicy.policyTemplateSlug)
+      )
       .where(
         and(
           eq(
@@ -44,16 +48,21 @@ export async function GET(
             wallet_address.toLowerCase()
           )
         )
-      );
+      )
+      .orderBy(desc(userPolicy.updatedAt));
 
-    const premiums = await db.select().from(premium).where(filterCondition);
+    const premiums = await db
+      .select()
+      .from(premium)
+      .where(filterCondition)
+      .orderBy(desc(premium.updatedAt));
 
     const response = {
       data: {
         userPolicies,
         premiums,
       },
-      totalCount: premiumCount,
+      //totalCount: premiumCount,
     };
 
     return NextResponse.json(response, {

@@ -2,15 +2,23 @@ import useSWR from "swr";
 import { usePrivy } from "@privy-io/react-auth";
 import { fetcher } from "@/app/fetcher";
 
-export function useGetPolicies() {
-  const { ready } = usePrivy();
+export function useGetUserPolicies() {
+  const { user } = usePrivy();
   const mutationKey = `/api/policy`;
   const {
-    data: policies,
-    isLoading: isLoadingPolicies,
-    error: errorPolicies,
-  } = useSWR<Policy[]>(ready ? mutationKey : null, async () =>
-    fetcher(mutationKey, {
+    data: userPolicies,
+    isLoading: isLoadingUserPolicies,
+    error: errorUserPolicies,
+  } = useSWR<{
+    data: {
+      userPolicies: {
+        user_policy: UserPolicy;
+        policy_template: PolicyTemplate;
+      }[];
+      premiums: Premium[];
+    };
+  }>(user?.wallet?.address ? mutationKey : null, async () =>
+    fetcher(`${mutationKey}/${user?.wallet?.address}`, {
       method: "GET",
       headers: {
         "content-type": "application/json",
@@ -21,15 +29,15 @@ export function useGetPolicies() {
 
   return {
     mutationKey,
-    policies,
-    isLoadingPolicies,
-    errorPolicies,
+    userPolicies,
+    isLoadingUserPolicies,
+    errorUserPolicies,
   };
 }
 
 export function usePremium(slug: string) {
   const { user } = usePrivy();
-  const mutationKey = `/api/policy/premium`;
+  const mutationKey = `/api/policy`;
   const {
     data: premiums,
     isLoading: isLoadingPremiums,

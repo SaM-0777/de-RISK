@@ -5,6 +5,7 @@ import z from "zod";
 import { createPublicClient, getContract, Hex, http } from "viem";
 import { sepolia } from "viem/chains";
 import contracts from "@/constants/contracts";
+import { parseTokenURI } from "@/utils/nft";
 //import { getCacheValue, setCacheValue } from "@/lib/cache";
 
 const INFURA_RPC_URL = process.env.INFURA_RPC_URL;
@@ -75,13 +76,10 @@ export async function POST(request: NextRequest) {
           BigInt(index),
         ]);
         const tokenURI = await PolicyContract.read.tokenURI([tokenId]);
-        const jsonTokenURI = Buffer.from(
-          tokenURI.replace("data:application/json;base64,", ""),
-          "base64"
-        ).toString("utf-8");
+        const jsonTokenURI = parseTokenURI(tokenURI);
         nfts.push({
           tokenId: Number(tokenId),
-          tokenURI: JSON.parse(jsonTokenURI),
+          tokenURI: jsonTokenURI,
         });
       }
     }
@@ -95,7 +93,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(response, { status: 200 });
   } catch (error) {
-    console.error(`src.app.api.policy.nft.route.error ${error}`)
+    console.error(`src.app.api.policy.nft.route.error ${error}`);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
