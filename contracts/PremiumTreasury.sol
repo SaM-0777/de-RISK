@@ -15,11 +15,7 @@ contract PremiumTreasury is AccessControl {
     event PremiumReceived(address policyContract, uint256 amount);
     event PayoutSent(uint256 tokenId, address recipient, uint256 amount);
 
-    constructor(
-      address _mUSDC,
-      address admin,
-      address insuranceFactory
-    ) {
+    constructor(address _mUSDC, address admin, address insuranceFactory) {
         mUSDC = _mUSDC;
 
         _grantRole(ADMIN_ROLE, admin);

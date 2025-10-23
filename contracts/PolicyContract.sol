@@ -10,6 +10,14 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
+interface IPremiumTreasury {
+    function sendPayout(
+        uint256 tokenId,
+        address recipient,
+        uint256 amount
+    ) external;
+}
+
 interface IOracleConsumer {
     function isClaimable(
         uint256 policyId,
@@ -67,7 +75,11 @@ contract PolicyContract is
         bool success,
         string policySlug
     );
-    event ParamsUpdated(uint256 premiumAmount, uint256 payoutAmount, string policySlug);
+    event ParamsUpdated(
+        uint256 premiumAmount,
+        uint256 payoutAmount,
+        string policySlug
+    );
 
     constructor(
         string memory _name,
@@ -124,7 +136,14 @@ contract PolicyContract is
         _safeMint(owner, tokenId);
         _setTokenURI(tokenId, tokenUri);
 
-        emit PolicyPurchased(tokenId, owner, expiry, premiumAmount, tokenUri, policySlug);
+        emit PolicyPurchased(
+            tokenId,
+            owner,
+            expiry,
+            premiumAmount,
+            tokenUri,
+            policySlug
+        );
     }
 
     function payPremium(uint256 tokenId) external {
@@ -161,13 +180,21 @@ contract PolicyContract is
             "Claim conditions not met"
         );
 
-        policies[tokenId].claimed = true;
-        require(
-            IERC20(mUSDC).transferFrom(treasury, msg.sender, payoutAmount),
-            "Payout failed"
+        IPremiumTreasury(treasury).sendPayout(
+            tokenId,
+            policies[tokenId].owner,
+            payoutAmount
         );
+
+        policies[tokenId].claimed = true;
         _burn(tokenId); // Single-claim policy
-        emit ClaimProcessed(tokenId, msg.sender, payoutAmount, true, policySlug);
+        emit ClaimProcessed(
+            tokenId,
+            msg.sender,
+            payoutAmount,
+            true,
+            policySlug
+        );
     }
 
     function updateClaimStatus(
@@ -183,14 +210,12 @@ contract PolicyContract is
                 policies[tokenId].expiry == 0)
         ) {
             // To auto-trigger payout
-            require(
-                IERC20(mUSDC).transferFrom(
-                    treasury,
-                    policies[tokenId].owner,
-                    payoutAmount
-                ),
-                "Auto-payout failed"
+            IPremiumTreasury(treasury).sendPayout(
+                tokenId,
+                policies[tokenId].owner,
+                payoutAmount
             );
+
             policies[tokenId].claimed = true;
             _burn(tokenId);
             emit ClaimProcessed(

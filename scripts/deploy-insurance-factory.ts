@@ -15,5 +15,4 @@ const InsuranceFactory = await viem.deployContract("InsuranceFactory", [
 ]);
 
 console.log("Insurance Factory: ", InsuranceFactory.address); // 0x2808ddf884998c667f9c2ca83e17270d52ba7ad6
-
-// 0x8a806c901f73826b1666c9e752c597e583c800ce
+// 0xd4f3a59a7ad82056d5b73bc5893fa611c10a470a

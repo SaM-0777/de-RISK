@@ -14,7 +14,16 @@ import { publicViemClient, walletViemClient } from "../viem";
 import { db } from "@/db";
 import { policyTemplate, premium, userPolicy } from "@/db/schema/policy";
 import { eq } from "drizzle-orm";
-import { DePegPolicyNFTImageURI } from "@/constants/policy";
+import {
+  PolicyNFT1,
+  PolicyNFT2,
+  PolicyNFT3,
+  PolicyNFT4,
+  PolicyNFT5,
+  PolicyNFT6,
+  PolicyNFT7,
+  PolicyNFT8,
+} from "@/constants/policy";
 
 export async function createPolicy({
   name,
@@ -47,7 +56,7 @@ export async function createPolicy({
         name,
         slug,
         description,
-        DePegPolicyNFTImageURI, // mock image (ipfs://)
+        PolicyNFT3, // mock image (ipfs://)
         OracleConsumerAddress,
         PremiumTreasuryAddress,
         mUSDCAddress,
@@ -292,11 +301,11 @@ export async function payPremium({
 }
 
 //createPolicy({
-//  name: "DeFi Shield",
-//  description: "Covers losses from smart contract exploits, rug pulls, and DeFi protocol failures.",
+//  name: "Exchange Protect",
+//  description: "Insurance for funds held on centralized or hybrid exchanges.",
 //  coverageTerms: [],
-//  payoutAmount: "500",
-//  premiumAmount: "20"
+//  payoutAmount: "10000",
+//  premiumAmount: "100"
 //}).then(d => {
 //  console.log(d)
 //  process.exit(0)

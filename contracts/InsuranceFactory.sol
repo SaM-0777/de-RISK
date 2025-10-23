@@ -31,7 +31,13 @@ contract InsuranceFactory is AccessControl {
     mapping(uint256 => Policy) public policies;
     uint256 public policyCount;
 
-    event PolicyCreated(uint256 policyId, address policyContract, string name, string slug, string imageUrl);
+    event PolicyCreated(
+        uint256 policyId,
+        address policyContract,
+        string name,
+        string slug,
+        string imageUrl
+    );
     event PolicyUpdated(
         uint256 policyId,
         uint256 premiumAmount,
@@ -85,7 +91,13 @@ contract InsuranceFactory is AccessControl {
             address(policyContract)
         );
 
-        emit PolicyCreated(policyId, address(policyContract), name, slug, imageUrl);
+        emit PolicyCreated(
+            policyId,
+            address(policyContract),
+            name,
+            slug,
+            imageUrl
+        );
     }
 
     function updatePolicy(
