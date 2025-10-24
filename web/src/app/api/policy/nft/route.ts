@@ -8,6 +8,9 @@ import contracts from "@/constants/contracts";
 import { parseTokenURI } from "@/utils/nft";
 //import { getCacheValue, setCacheValue } from "@/lib/cache";
 
+export const runtime = 'nodejs'
+export const maxDuration = 25
+
 const INFURA_RPC_URL = process.env.INFURA_RPC_URL;
 
 export async function POST(request: NextRequest) {
