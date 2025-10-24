@@ -4,6 +4,10 @@ import { authorization } from "@/lib/authorization";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = 'nodejs'
+export const maxDuration = 25
+
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ wallet_address: string }> }
