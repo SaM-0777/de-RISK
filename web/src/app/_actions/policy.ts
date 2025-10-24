@@ -8,9 +8,10 @@ import {
   http,
   Hex,
   formatUnits,
+  createWalletClient,
 } from "viem";
 import { sepolia } from "viem/chains";
-import { publicViemClient, walletViemClient } from "../viem";
+import { publicViemClient } from "../viem";
 import { db } from "@/db";
 import { policyTemplate, premium, userPolicy } from "@/db/schema/policy";
 import { eq } from "drizzle-orm";
@@ -24,6 +25,9 @@ import {
   PolicyNFT7,
   PolicyNFT8,
 } from "@/constants/policy";
+import { privateKeyToAccount } from "viem/accounts";
+
+const INFURA_RPC_URL = process.env.INFURA_RPC_URL;
 
 export async function createPolicy({
   name,
@@ -42,6 +46,13 @@ export async function createPolicy({
     const mUSDCAddress = contracts.MUSDC.address;
     const PremiumTreasuryAddress = contracts.PremiumTreasury.address;
     const OracleConsumerAddress = contracts.OracleConsumer.address;
+
+    const account = privateKeyToAccount(process.env.PRIVATE_KEY as Hex);
+
+    const walletViemClient = createWalletClient({
+      transport: http(INFURA_RPC_URL),
+      account: account,
+    });
 
     const InsuranceFactoryContract = getContract({
       address: contracts.InsuranceFactory.address,

@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { sepolia } from "viem/chains";
 import { buyDepegPolicy, payPremium } from "@/app/_actions/policy";
 import { parseNFTImage } from "@/utils/nft";
+import { usePolicyPurchasedByPolicySlug } from "@/hooks/use-policy";
 
 const formSchema = z.object({
   walletAddress: z
@@ -74,6 +75,14 @@ export default function DepegPolicyForm({
   const { connectWallet } = useConnectWallet();
   const [pending, setPending] = useState<boolean>(false);
   const { userNFT, userNFTIsLoading } = useBalance(contractAddress as Hex);
+  const { data, error } = usePolicyPurchasedByPolicySlug(slug);
+
+  useEffect(() => {
+    console.log({
+      data,
+      error,
+    });
+  }, [data, error]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

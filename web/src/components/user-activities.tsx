@@ -57,10 +57,6 @@ export default function UserActivities() {
     });
   }, [userPolicies?.data.premiums, userPolicies?.data.userPolicies]);
 
-  if (!userPolicies) {
-    return <div />;
-  }
-
   return (
     <Card className="w-full border border-[#B09EFC] bg-[#F8F6FF] rounded-2xl p-8 mt-8">
       <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
@@ -88,7 +84,7 @@ export default function UserActivities() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedActivity.map((a, i) => (
+            {sortedActivity?.map((a, i) => (
               <TableRow
                 key={i}
                 className="border-b border-gray-100 hover:bg-gray-50"

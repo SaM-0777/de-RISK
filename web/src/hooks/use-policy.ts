@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import { usePrivy } from "@privy-io/react-auth";
-import { fetcher } from "@/app/fetcher";
+import { fetcher, gFetcher } from "@/app/fetcher";
+import { gql } from "graphql-request";
 
 export function useGetUserPolicies() {
   const { user } = usePrivy();
@@ -60,5 +61,71 @@ export function usePremium(slug: string) {
     premiums,
     isLoadingPremiums,
     errorPremiums,
+  };
+}
+
+export function useUserPolicies() {
+  const { user } = usePrivy();
+  const mutationKey = gql`
+    query Policies($owner: String!) {
+      PolicyContract_PolicyPurchased(where: { owner: { _eq: $owner } }) {
+        amount
+        expiry
+        id
+        owner
+        policySlug
+        tokenId
+        tokenURI
+      }
+    }
+  `;
+
+  const { data, error, isLoading } = useSWR<{
+    PolicyContract_PolicyPurchased: PolicyContractPolicyPurchased[];
+  }>(
+    user?.wallet?.address
+      ? [mutationKey, { owner: user?.wallet?.address }]
+      : null,
+    gFetcher
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
+  };
+}
+
+export function usePolicyPurchasedByPolicySlug(policySlug: string) {
+  const { user } = usePrivy();
+  const mutationKey = gql`
+    query Policies($owner: String!, $policySlug: String!) {
+      PolicyContract_PolicyPurchased(
+        where: { owner: { _eq: $owner }, policySlug: { _eq: $policySlug } }
+      ) {
+        amount
+        expiry
+        id
+        owner
+        policySlug
+        tokenId
+        tokenURI
+      }
+    }
+  `;
+
+  const { data, error, isLoading } = useSWR<{
+    PolicyContract_PolicyPurchased: PolicyContractPolicyPurchased[];
+  }>(
+    user?.wallet?.address
+      ? [mutationKey, { owner: user?.wallet?.address, policySlug }]
+      : null,
+    gFetcher
+  );
+
+  return {
+    data,
+    error,
+    isLoading,
   };
 }

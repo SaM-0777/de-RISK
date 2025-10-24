@@ -14,7 +14,7 @@ type UserPolicy = {
   ownerAddress: string;
   tokenId: string;
   tokenURI: string;
-  expiry: string | null;
+  expiry: Date | string | null;
   txHash: string;
   premiumPaid: string;
   status: "pending" | "verified";
@@ -51,13 +51,14 @@ type PolicyTemplate = {
   description: string;
   contractAddress: string;
   policyId: string;
+  imageUrl: string;
   premiumAmount: string;
   payoutAmount: string;
   oracleAddress: string;
   coverageTerms: string[];
   formSchema: unknown;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 };
 
 type UserPolicyNFT = {
@@ -71,3 +72,13 @@ type UserPolicyNFT = {
     };
   }[];
 };
+
+type PolicyContractPolicyPurchased = {
+  amount: string;      // Example: "10000000000000000000"
+  expiry: Date | string;      // Example: "0"
+  id: string;          // Example: "11155111_9471422_6"
+  owner: string;       // Ethereum address
+  policySlug: string;  // Example: "wallet_guard"
+  tokenId: string;     // Example: "0"
+  tokenURI: string;    // base64-encoded metadata
+}
