@@ -1,0 +1,209 @@
+type InsuranceFactory_PolicyCreated {
+  id: ID!
+  policyId: BigInt!
+  policyContract: String!
+  name: String!
+  slug: String!
+  imageUrl: String!
+}
+
+type InsuranceFactory_PolicyUpdated {
+  id: ID!
+  policyId: BigInt!
+  premiumAmount: BigInt!
+  payoutAmount: BigInt!
+}
+
+type InsuranceFactory_RoleAdminChanged {
+  id: ID!
+  role: String!
+  previousAdminRole: String!
+  newAdminRole: String!
+}
+
+type InsuranceFactory_RoleGranted {
+  id: ID!
+  role: String!
+  account: String!
+  sender: String!
+}
+
+type InsuranceFactory_RoleRevoked {
+  id: ID!
+  role: String!
+  account: String!
+  sender: String!
+}
+
+type MUSDC_Approval {
+  id: ID!
+  owner: String!
+  spender: String!
+  value: BigInt!
+}
+
+type MUSDC_OwnershipTransferred {
+  id: ID!
+  previousOwner: String!
+  newOwner: String!
+}
+
+type MUSDC_Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  value: BigInt!
+}
+
+type OracleConsumer_ClaimStatusUpdated {
+  id: ID!
+  policyId: BigInt!
+  tokenId: BigInt!
+  claimable: Boolean!
+}
+
+type OracleConsumer_EIP712DomainChanged {
+  id: ID!
+}
+
+type OracleConsumer_RoleAdminChanged {
+  id: ID!
+  role: String!
+  previousAdminRole: String!
+  newAdminRole: String!
+}
+
+type OracleConsumer_RoleGranted {
+  id: ID!
+  role: String!
+  account: String!
+  sender: String!
+}
+
+type OracleConsumer_RoleRevoked {
+  id: ID!
+  role: String!
+  account: String!
+  sender: String!
+}
+
+type PolicyContract_Approval {
+  id: ID!
+  owner: String!
+  approved: String!
+  tokenId: BigInt!
+}
+
+type PolicyContract_ApprovalForAll {
+  id: ID!
+  owner: String!
+  operator: String!
+  approved: Boolean!
+}
+
+type PolicyContract_BatchMetadataUpdate {
+  id: ID!
+  _fromTokenId: BigInt!
+  _toTokenId: BigInt!
+}
+
+type PolicyContract_ClaimProcessed {
+  id: ID!
+  tokenId: BigInt!
+  owner: String!
+  amount: BigInt!
+  success: Boolean!
+  policySlug: String!
+}
+
+type PolicyContract_MetadataUpdate {
+  id: ID!
+  _tokenId: BigInt!
+}
+
+type PolicyContract_ParamsUpdated {
+  id: ID!
+  premiumAmount: BigInt!
+  payoutAmount: BigInt!
+  policySlug: String!
+}
+
+type PolicyContract_PolicyPurchased {
+  id: ID!
+  tokenId: BigInt!
+  owner: String!
+  expiry: BigInt!
+  amount: BigInt!
+  tokenURI: String!
+  policySlug: String!
+}
+
+type PolicyContract_PremiumPaid {
+  id: ID!
+  tokenId: BigInt!
+  amount: BigInt!
+  policySlug: String!
+}
+
+type PolicyContract_RoleAdminChanged {
+  id: ID!
+  role: String!
+  previousAdminRole: String!
+  newAdminRole: String!
+}
+
+type PolicyContract_RoleGranted {
+  id: ID!
+  role: String!
+  account: String!
+  sender: String!
+}
+
+type PolicyContract_RoleRevoked {
+  id: ID!
+  role: String!
+  account: String!
+  sender: String!
+}
+
+type PolicyContract_Transfer {
+  id: ID!
+  from: String!
+  to: String!
+  tokenId: BigInt!
+}
+
+type PremiumTreasury_PayoutSent {
+  id: ID!
+  tokenId: BigInt!
+  recipient: String!
+  amount: BigInt!
+}
+
+type PremiumTreasury_PremiumReceived {
+  id: ID!
+  policyContract: String!
+  amount: BigInt!
+}
+
+type PremiumTreasury_RoleAdminChanged {
+  id: ID!
+  role: String!
+  previousAdminRole: String!
+  newAdminRole: String!
+}
+
+type PremiumTreasury_RoleGranted {
+  id: ID!
+  role: String!
+  account: String!
+  sender: String!
+}
+
+type PremiumTreasury_RoleRevoked {
+  id: ID!
+  role: String!
+  account: String!
+  sender: String!
+}
+

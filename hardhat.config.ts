@@ -1,13 +1,19 @@
 import type { HardhatUserConfig } from "hardhat/config";
-
+import hardhatVerify from "@nomicfoundation/hardhat-verify";
 import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
 
+const ETHERSCAN = process.env.ETHERSCAN;
 const INFURA_RPC_URL = process.env.INFURA_RPC_URL;
 const BASE_SEPOLIA_RPC_URL = process.env.BASE_SEPOLIA_RPC_URL;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 const config: HardhatUserConfig = {
-  plugins: [hardhatToolboxViemPlugin],
+  plugins: [hardhatToolboxViemPlugin, hardhatVerify],
+  verify: {
+    etherscan: {
+      apiKey: ETHERSCAN,
+    }
+  },
   solidity: {
     profiles: {
       default: {

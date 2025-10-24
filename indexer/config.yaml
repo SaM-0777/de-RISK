@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=./node_modules/envio/evm.schema.json
+name: envio-indexer
+networks:
+- id: 11155111
+  start_block: 0
+  contracts:
+  - name: InsuranceFactory
+    address:
+    - 0xd4f3a59A7ad82056d5B73BC5893fa611c10a470a
+    handler: src/EventHandlers.ts
+    events:
+    - event: PolicyCreated(uint256 policyId, address policyContract, string name, string slug, string imageUrl)
+    - event: PolicyUpdated(uint256 policyId, uint256 premiumAmount, uint256 payoutAmount)
+    - event: RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)
+    - event: RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)
+    - event: RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)
+  - name: PremiumTreasury
+    address:
+    - 0x2030eE7AD6F48c4Ec628736e8A5E137514be202F
+    handler: src/EventHandlers.ts
+    events:
+    - event: PayoutSent(uint256 tokenId, address recipient, uint256 amount)
+    - event: PremiumReceived(address policyContract, uint256 amount)
+    - event: RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)
+    - event: RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)
+    - event: RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)
+  - name: OracleConsumer
+    address:
+    - 0x28Aeb75065c35379D1c3C010dBA553aa37757E94
+    handler: src/EventHandlers.ts
+    events:
+    - event: ClaimStatusUpdated(uint256 policyId, uint256 tokenId, bool claimable)
+    - event: EIP712DomainChanged()
+    - event: RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)
+    - event: RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)
+    - event: RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)
+  - name: MUSDC
+    address:
+    - 0x3AF0659F4496bf9a98308Ec16219E8594AA4Df27
+    handler: src/EventHandlers.ts
+    events:
+    - event: Approval(address indexed owner, address indexed spender, uint256 value)
+    - event: OwnershipTransferred(address indexed previousOwner, address indexed newOwner)
+    - event: Transfer(address indexed from, address indexed to, uint256 value)
+  - name: PolicyContract
+    address:
+    - 0xCA838B27c73865A8AFAb97112d477B67FA138A9b
+    - 0x1168CCa5d1D3Da7447645BA26a8cB3C286d4Bca9
+    - 0x08F20E32a017a82337c44009C56f1E48B11f6034
+    handler: src/EventHandlers.ts
+    events:
+    - event: Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)
+    - event: ApprovalForAll(address indexed owner, address indexed operator, bool approved)
+    - event: BatchMetadataUpdate(uint256 _fromTokenId, uint256 _toTokenId)
+    - event: ClaimProcessed(uint256 tokenId, address owner, uint256 amount, bool success, string policySlug)
+    - event: MetadataUpdate(uint256 _tokenId)
+    - event: ParamsUpdated(uint256 premiumAmount, uint256 payoutAmount, string policySlug)
+    - event: PolicyPurchased(uint256 tokenId, address owner, uint256 expiry, uint256 amount, string tokenURI, string policySlug)
+    - event: PremiumPaid(uint256 tokenId, uint256 amount, string policySlug)
+    - event: RoleAdminChanged(bytes32 indexed role, bytes32 indexed previousAdminRole, bytes32 indexed newAdminRole)
+    - event: RoleGranted(bytes32 indexed role, address indexed account, address indexed sender)
+    - event: RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender)
+    - event: Transfer(address indexed from, address indexed to, uint256 indexed tokenId)
+unordered_multichain_mode: true
+preload_handlers: true
