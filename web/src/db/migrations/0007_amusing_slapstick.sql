@@ -1,0 +1,1 @@
+--ALTER TABLE "user_policy" ALTER COLUMN "token_uri" SET DEFAULT '';

@@ -1,14 +1,29 @@
 import type { HardhatUserConfig } from "hardhat/config";
-
+import hardhatVerify from "@nomicfoundation/hardhat-verify";
 import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
-import { configVariable } from "hardhat/config";
+
+const ETHERSCAN = process.env.ETHERSCAN;
+const INFURA_RPC_URL = process.env.INFURA_RPC_URL;
+const BASE_SEPOLIA_RPC_URL = process.env.BASE_SEPOLIA_RPC_URL;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 const config: HardhatUserConfig = {
-  plugins: [hardhatToolboxViemPlugin],
+  plugins: [hardhatToolboxViemPlugin, hardhatVerify],
+  verify: {
+    etherscan: {
+      apiKey: ETHERSCAN,
+    }
+  },
   solidity: {
     profiles: {
       default: {
         version: "0.8.28",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          }
+        },
       },
       production: {
         version: "0.8.28",
@@ -33,8 +48,16 @@ const config: HardhatUserConfig = {
     sepolia: {
       type: "http",
       chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+      chainId: 11155111,
+      url: INFURA_RPC_URL!,
+      accounts: [PRIVATE_KEY!],
+    },
+    baseSepolia: {
+      type: "http",
+      chainId: 84532,
+      url: BASE_SEPOLIA_RPC_URL!,
+      accounts: [PRIVATE_KEY!],
+      gasPrice: 1000000000,
     },
   },
 };

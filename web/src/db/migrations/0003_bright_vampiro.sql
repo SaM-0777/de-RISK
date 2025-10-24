@@ -1,0 +1,1 @@
+ALTER TABLE "policy_template" ADD COLUMN "image_url" varchar NOT NULL;

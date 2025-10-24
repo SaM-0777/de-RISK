@@ -1,0 +1,1 @@
+ALTER TABLE "policy_template" DROP CONSTRAINT "policy_template_oracle_address_unique";
